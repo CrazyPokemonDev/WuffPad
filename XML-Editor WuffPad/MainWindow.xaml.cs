@@ -99,9 +99,11 @@ namespace XML_Editor_WuffPad
         private bool checkValuesCorrect()
         {
             bool doSave = true;
-            #region {0} and so on + gif string length check
+            List<string> hasKeys = new List<string>();
+            #region {0} and so on + gif string length check + collecting keys
             foreach (XmlString s in loadedFile.Strings)
             {
+                hasKeys.Add(s.Key);
                 #region Gif string length check
                 if (s.Isgif)
                 {
@@ -173,6 +175,32 @@ namespace XML_Editor_WuffPad
                 #endregion
             }
             #endregion
+            foreach (string s in defaultKeysList)
+            {
+                if (!hasKeys.Contains(s) && s.Trim() != "")
+                {
+                    MessageBoxResult result = MessageBox.Show("A value for " + s +
+                                    " is still missing.\nSave anyway? " +
+                                    "Press cancel to create it and jump there.",
+                                    "Warning", MessageBoxButton.YesNoCancel);
+                    if (result == MessageBoxResult.No)
+                    {
+                        doSave = false;
+                        break;
+                    }
+                    else if (result == MessageBoxResult.Cancel)
+                    {
+                        XmlString temp = new XmlString();
+                        temp.Key = s;
+                        temp.Description = getDescription(s);
+                        loadedFile.Strings.Add(temp);
+                        currentStringsList = loadedFile.Strings;
+                        listItemsView.ScrollIntoView(temp);
+                        listItemsView.SelectedItem = temp;
+                        return false;
+                    }
+                }
+            }
             return doSave;
         }
 
