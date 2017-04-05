@@ -175,6 +175,7 @@ namespace XML_Editor_WuffPad
                 #endregion
             }
             #endregion
+            #region checking for missing strings
             foreach (string s in defaultKeysList)
             {
                 if (!hasKeys.Contains(s) && s.Trim() != "")
@@ -201,6 +202,7 @@ namespace XML_Editor_WuffPad
                     }
                 }
             }
+            #endregion
             return doSave;
         }
 
@@ -433,6 +435,7 @@ namespace XML_Editor_WuffPad
         private void openFindDialog()
         {
             //stuff's gotta be added here
+
         }
 
 #region Big Delete Method
@@ -480,6 +483,7 @@ namespace XML_Editor_WuffPad
                 listItemsView.IsEnabled = true;
                 editLanguageMenuItem.IsEnabled = true;
                 fileUploadMenuItem.IsEnabled = true;
+                editFindMenuItem.IsEnabled = true;
             }
             else
             {
@@ -488,6 +492,7 @@ namespace XML_Editor_WuffPad
                 listItemsView.IsEnabled = false;
                 editLanguageMenuItem.IsEnabled = false;
                 fileUploadMenuItem.IsEnabled = false;
+                editFindMenuItem.IsEnabled = false;
             }
             if (itemIsOpen)
             {

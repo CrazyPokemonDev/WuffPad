@@ -47,6 +47,7 @@
             </MenuItem>
             <MenuItem x:Name="editMenuItem" Header="Edit">
                 <MenuItem x:Name="editLanguageMenuItem" Header="Language properties" Command="comm:CustomCommands.LanguageProperties" HorizontalAlignment="Left" IsEnabled="False"/>
+                <MenuItem x:Name="editFindMenuItem" Header="Find" Command="ApplicationCommands.Find" HorizontalAlignment="Left" IsEnabled="False"/>
             </MenuItem>
             <MenuItem x:Name="infoMenuItem" Header="Info">
                 <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="closedlistItem_Click"/>

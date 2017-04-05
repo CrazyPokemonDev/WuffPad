@@ -5,8 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XML_Editor_WuffPad"
         mc:Ignorable="d"
-        Title="FindDialog" Height="200" Width="300">
+        Title="FindDialog" Height="120" Width="300">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="textBlock" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Search in:" VerticalAlignment="Top"/>
+        <RadioButton x:Name="keysButton" Content="Keys" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0.2,0,0" VerticalAlignment="Top" Grid.Row="1"/>
+        <RadioButton x:Name="descriptionsButton" Content="Descriptions" Grid.Column="1" HorizontalAlignment="Left" Margin="0,15.2,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <RadioButton x:Name="valuesButton" Content="Values" Grid.Column="1" HorizontalAlignment="Left" Margin="0,30.2,0,0" Grid.Row="1" VerticalAlignment="Top"/>
+        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Text to find:" VerticalAlignment="Top" Margin="5,0,0,0"/>
+        <TextBox x:Name="textBox" Height="23" Margin="5,4.2,5,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <Button x:Name="okayButton" Content="Find" Grid.Row="2" VerticalAlignment="Center" Width="75" HorizontalAlignment="Left" Margin="5,0,0,0"/>
+        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="2" VerticalAlignment="Center" Width="75"/>
     </Grid>
 </Window>
