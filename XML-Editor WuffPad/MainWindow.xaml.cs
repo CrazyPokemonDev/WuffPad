@@ -99,8 +99,36 @@ namespace XML_Editor_WuffPad
         private bool checkValuesCorrect()
         {
             bool doSave = true;
+            #region {0} and so on + gif string length check
             foreach (XmlString s in loadedFile.Strings)
             {
+                #region Gif string length check
+                if (s.Isgif)
+                {
+                    foreach(string v in s.Values)
+                    {
+                        if (v.Length > 200)
+                        {
+                            MessageBoxResult result = MessageBox.Show("A value of " + s.Key +
+                                    " exceeds the 200 character limit for gifs.\n" +
+                                    "Save anyway? Press cancel to jump there.",
+                                    "Warning", MessageBoxButton.YesNoCancel);
+                            if (result == MessageBoxResult.No)
+                            {
+                                doSave = false;
+                            }
+                            else if (result == MessageBoxResult.Cancel)
+                            {
+                                listItemsView.ScrollIntoView(s);
+                                listItemsView.SelectedItem = s;
+                                return false;
+                            }
+                        }
+                    }
+                }
+                if (!doSave) break;
+                #endregion
+                #region parentheses check
                 bool hadIt = true;
                 int parenthCount = 0;
                 do
@@ -129,6 +157,7 @@ namespace XML_Editor_WuffPad
                                 if (result == MessageBoxResult.No)
                                 {
                                     doSave = false;
+                                    break;
                                 }
                                 else if (result == MessageBoxResult.Cancel)
                                 {
@@ -140,7 +169,10 @@ namespace XML_Editor_WuffPad
                         }
                     }
                 }
+                if (!doSave) break;
+                #endregion
             }
+            #endregion
             return doSave;
         }
 
