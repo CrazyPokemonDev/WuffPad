@@ -1,0 +1,23 @@
+﻿<Window x:Class="XML_Editor_WuffPad.FeedbackDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XML_Editor_WuffPad"
+        mc:Ignorable="d"
+        Title="FeedbackDialog" Height="200" Width="300" ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="2.5*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="textBox" TextWrapping="Wrap" Text="Enter your message" VerticalAlignment="Top" Margin="0,0,-0.4,0" Height="18" Grid.ColumnSpan="2"/>
+        <Button x:Name="sendButton" Content="Send message to developer" Margin="5,5.2,0,5.4" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" Height="19" Width="150" Click="sendButton_Click"/>
+        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" VerticalAlignment="Center" Width="75" Height="19" Grid.ColumnSpan="2" Grid.Column="1" Click="cancelButton_Click"/>
+        <TextBox x:Name="inputBox" Margin="5" Grid.Row="1" TextWrapping="Wrap" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="usernameBox" HorizontalAlignment="Left" Margin="5,5,0,5" Grid.Row="2" TextWrapping="Wrap" Text="Telegram username" Width="120"/>
+
+    </Grid>
+</Window>

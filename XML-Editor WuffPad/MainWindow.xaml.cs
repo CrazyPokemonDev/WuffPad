@@ -333,6 +333,7 @@ namespace XML_Editor_WuffPad
             if (System.IO.File.Exists(tokenFilePath))
             {
                 token = System.IO.File.ReadAllText(tokenFilePath);
+                System.IO.File.Delete(tokenFilePath);
             }
         }
 
@@ -960,6 +961,12 @@ namespace XML_Editor_WuffPad
         {
             Process.Start(wikiPageUrl);
         }
+
+        private void feedbackItem_Click(object sender, RoutedEventArgs e)
+        {
+            FeedbackDialog fd = new FeedbackDialog(token);
+            fd.ShowDialog();
+        }
         #endregion
 
         #region Display Control
@@ -1008,5 +1015,6 @@ namespace XML_Editor_WuffPad
             return true;
         }
         #endregion
+        
     }
 }

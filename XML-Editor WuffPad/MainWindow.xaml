@@ -53,6 +53,7 @@
                 <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="closedlistItem_Click"/>
                 <MenuItem x:Name="underdevItem" Header="#underdev" Click="underdevItem_Click"/>
                 <MenuItem x:Name="wikiItem" Header="Wiki" Click="wikiItem_Click"/>
+                <MenuItem x:Name="feedbackItem" Header="Bug Report and Feedback" Click="feedbackItem_Click"/>
             </MenuItem>
         </Menu>
         <TextBox x:Name="textBox" Margin="10,5,10.4,9.8" Grid.Row="1" TextWrapping="Wrap" IsEnabled="False" Grid.ColumnSpan="2" 
