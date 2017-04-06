@@ -81,6 +81,7 @@ namespace XML_Editor_WuffPad
         private const int clickedItems = 0;
         private const int clickedValues = 1;
         private List<string> commentLines = new List<string>();
+        private Dictionary<string, List<string>> commentDic = new Dictionary<string, List<string>>();
         private bool fromTextBox = false;
         private string token = "";
 #endregion
@@ -385,14 +386,14 @@ namespace XML_Editor_WuffPad
                 loadDirectory = ofd.FileName;
                 saveDirectory = ofd.FileName;
                 directoryChosen = true;
-                try
-                {
+                /*try
+                {*/
                     loadFile();
-                }
+                /*}
                 catch
                 {
                     //Message should've already popped up
-                }
+                }*/
             }
             updateStatus();
         }
@@ -537,32 +538,42 @@ namespace XML_Editor_WuffPad
         private XmlStrings readXmlString(string fileString)
         {
             string[] splitted = fileString.Split('\n');
-            foreach (string s in splitted)
+            string lastKey = "";
+            foreach (string s1 in splitted)
             {
+                string s = s1.Trim();
                 if (s.StartsWith("<!--"))
                 {
-                    commentLines.Add(s);
+                    if (!commentDic.ContainsKey(lastKey))
+                    {
+                        commentDic.Add(lastKey, new List<string>());
+                    }
+                    string s2 = s1;
+                    if (!s2.EndsWith("-->")) s2 += "-->";
+                    commentDic[lastKey].Add(s2);
                 }
-                else if (s.StartsWith("  <language"))
+                else if (s.StartsWith("<string "))
                 {
-                    break;
+                    int index = s.IndexOf("key=\"") + 5;
+                    int length = s.Substring(index).IndexOf('"');
+                    lastKey = s.Substring(index, length);
                 }
             }
             XmlStrings result;
-            try
-            {
+            /*try
+            {*/
                 XmlSerializer serializer = new XmlSerializer(typeof(XmlStrings));
                 using (TextReader tr = new StringReader(fileString))
                 {
                     result = (XmlStrings)serializer.Deserialize(tr);
                 }
                 return result;
-            }
+            /*}
             catch
             {
                 MessageBox.Show("Failed to load file");
                 return null;
-            }
+            }*/
         }
 
         private string toUtf8(string input)
@@ -580,9 +591,12 @@ namespace XML_Editor_WuffPad
                 serializer.Serialize(tw, loadedFile);
                 string[] results = tw.ToString().Split('\n');
                 string result = results[0];
-                foreach (string s in commentLines)
+                if (commentDic.ContainsKey(""))
                 {
-                    result += "\n" + s;
+                    foreach (string s in commentDic[""])
+                    {
+                        result += "\n" + s;
+                    }
                 }
                 bool firstString = true;
                 foreach (string s in results)
@@ -590,6 +604,19 @@ namespace XML_Editor_WuffPad
                     if (!firstString)
                     {
                         result += "\n" + s;
+                        if (s.Trim().StartsWith("<string "))
+                        {
+                            int index = s.IndexOf("key=\"") + 5;
+                            int length = s.Substring(index).IndexOf('"');
+                            string key = s.Substring(index, length);
+                            if (commentDic.ContainsKey(key))
+                            {
+                                foreach (string c in commentDic[key])
+                                {
+                                    result += "\n" + c;
+                                }
+                            }
+                        }
                     }
                     firstString = false;
                 }
