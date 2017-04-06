@@ -68,8 +68,8 @@ namespace XML_Editor_WuffPad
         private string saveDirectory = Environment.CurrentDirectory + "language.xml";
         private string loadDirectory = Environment.CurrentDirectory + "language.xml";
         private XmlStrings loadedFile = new XmlStrings();
-        private ObservableCollection<XmlString> currentStringsList = new ObservableCollection<XmlString>();
-        private ObservableCollection<string> currentValuesList = new ObservableCollection<string>();
+        public ObservableCollection<XmlString> currentStringsList = new ObservableCollection<XmlString>();
+        public ObservableCollection<string> currentValuesList = new ObservableCollection<string>();
         private XmlString currentString = new XmlString();
         private int currentStringIndex;
         private string currentValue;
@@ -435,7 +435,8 @@ namespace XML_Editor_WuffPad
         private void openFindDialog()
         {
             //stuff's gotta be added here
-
+            FindDialog fd = new FindDialog(this);
+            fd.ShowDialog();
         }
 
 #region Big Delete Method
@@ -725,14 +726,17 @@ namespace XML_Editor_WuffPad
             }
             else if(e.Command == ApplicationCommands.Save)
             {
-                if (checkValuesCorrect())
+                if (fileIsOpen)
                 {
-                    saveXmlFile();
+                    if (checkValuesCorrect())
+                    {
+                        saveXmlFile();
+                    }
                 }
             }
             else if(e.Command == ApplicationCommands.Close)
             {
-                closeFile();
+                if (fileIsOpen) closeFile();
             }
             else if(e.Command == ApplicationCommands.New)
             {
@@ -740,15 +744,15 @@ namespace XML_Editor_WuffPad
             }
             else if (e.Command == ApplicationCommands.Delete)
             {
-                executeDeleteCommand();
+                if (fileIsOpen) executeDeleteCommand();
             }
             else if (e.Command == CustomCommands.LanguageProperties)
             {
-                openLanguageDialog();
+                if (fileIsOpen) openLanguageDialog();
             }
             else if (e.Command == ApplicationCommands.Find)
             {
-                openFindDialog();
+                if (fileIsOpen) openFindDialog();
             }
             else
             {
