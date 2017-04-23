@@ -48,18 +48,21 @@ namespace XML_Editor_WuffPad
         private static readonly string defaultKeysFilePathOnline = serverBaseUrl + "standardKeys.db";
         private static readonly string versionFilePath = Path.Combine(RootDirectory, "Resources\\versions.txt");
         private static readonly string versionFilePathOnline = serverBaseUrl + "versions.txt";
-        private static readonly string tokenFilePath = Path.Combine(RootDirectory, "Resources\\versions.txt");
+        private static readonly string tokenFilePath = Path.Combine(RootDirectory, "Resources\\token.cod");
         private static readonly string tokenFilePathOnline = serverBaseUrl + "token.cod";
-        private static readonly string[] filesNames = { "language.xml", "descriptions.dict", "standardKeys.db", "token.cod" };
+        private static readonly string emojisFilePath = Path.Combine(RootDirectory, "Resources\\emojis.txt");
+        private static readonly string emojisFilePathOnline = serverBaseUrl + "emojis.txt";
+        private static readonly string[] filesNames = { "language.xml", "descriptions.dict", "standardKeys.db", "token.cod", "emojis.txt" };
         private static readonly Dictionary<string, string[]> namesPathsDict = new Dictionary<string, string[]>()
         {
             {"language.xml", new string[] { fileScratchPathOnline, fileScratchPath } },
             {"descriptions.dict", new string[] { dictFilePathOnline, dictFilePath } },
             {"standardKeys.db", new string[] { defaultKeysFilePathOnline, defaultKeysFilePath } },
-            {"token.cod", new string[] { tokenFilePathOnline, tokenFilePath } }
+            {"token.cod", new string[] { tokenFilePathOnline, tokenFilePath } },
+            {"emojis.txt", new string[] { emojisFilePathOnline, emojisFilePath } }
         };
-        private const string closedlistPath = "http://84.200.85.34/getClosedlist.php";
-        private const string underdevPath = "http://84.200.85.34/getUnderdev.php";
+        private const string closedlistPath = "http://88.198.66.60/getClosedlist.php";
+        private const string underdevPath = "http://88.198.66.60/getUnderdev.php";
         private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
         #endregion
         #region Variables
@@ -87,6 +90,8 @@ namespace XML_Editor_WuffPad
         private Dictionary<string, List<string>> commentDic = new Dictionary<string, List<string>>();
         private bool fromTextBox = false;
         private string token = "";
+        private List<Button> emojiButtonsList = new List<Button>();
+        private List<string> emojisList = new List<string>();
         #endregion
         #endregion
 
@@ -99,6 +104,7 @@ namespace XML_Editor_WuffPad
             getDictAndDefaultKeys();
             listItemsView.ItemsSource = currentStringsList;
             listValuesView.ItemsSource = currentValuesList;
+            initializeEmojiKeyboard();
             updateStatus();
         }
         #endregion
@@ -329,7 +335,7 @@ namespace XML_Editor_WuffPad
             return "";
         }
         #endregion
-        #region Download Dictionary, default keys and token
+        #region Extract Dictionary, default keys, emojis and token
         private void getDictAndDefaultKeys()
         {
             if (System.IO.File.Exists(dictFilePath))
@@ -350,6 +356,13 @@ namespace XML_Editor_WuffPad
             {
                 token = System.IO.File.ReadAllText(tokenFilePath);
                 System.IO.File.Delete(tokenFilePath);
+            }
+            if (System.IO.File.Exists(emojisFilePath))
+            {
+                foreach (string s in System.IO.File.ReadAllLines(emojisFilePath, Encoding.UTF8))
+                {
+                    emojisList.Add(s);
+                }
             }
         }
         #endregion
@@ -492,7 +505,49 @@ namespace XML_Editor_WuffPad
                 textHasChanged = true;
             }
         }
-#endregion
+        #endregion
+        #region Initialize emoji keyboard
+        private void initializeEmojiKeyboard()
+        {
+            //this is only testing stuff yet
+            for (int i=0; i<6; i++)
+            {
+                ColumnDefinition cd = new ColumnDefinition();
+                cd.Width = new GridLength(1, GridUnitType.Star);
+                emojiGrid.ColumnDefinitions.Add(cd);
+            }
+            int column = -1;
+            int row = 0;
+            foreach (string s in emojisList)
+            {
+                column++;
+                if (column > 5)
+                {
+                    column = 0;
+                    RowDefinition rd = new RowDefinition();
+                    rd.Height = new GridLength(30, GridUnitType.Pixel);
+                    emojiGrid.RowDefinitions.Add(rd);
+                    row++;
+                }
+                Button b = new Button();
+                b.Content = s;
+                b.Margin = new Thickness(2.5, 2.5, 2.5, 2.5);
+                Grid.SetColumn(b, column);
+                Grid.SetRow(b, row);
+                emojiGrid.Children.Add(b);
+                b.Click += delegate (object sender, RoutedEventArgs e)
+                {
+                    var selStart = textBox.SelectionStart;
+                    var selLength = textBox.SelectionLength;
+                    textBox.Text = textBox.Text.Remove(selStart, selLength).Insert(selStart, b.Content.ToString());
+                    textBox.Focus();
+                    textBox.SelectionStart = selStart + 1;
+                };
+                b.IsEnabled = false;
+                emojiButtonsList.Add(b);
+            }
+        }
+        #endregion
         #endregion
 
         #region Status Updating
@@ -530,10 +585,18 @@ namespace XML_Editor_WuffPad
             if (valueIsOpen)
             {
                 textBox.IsEnabled = true;
+                foreach(Button b in emojiButtonsList)
+                {
+                    b.IsEnabled = true;
+                }
             }
             else
             {
                 textBox.IsEnabled = false;
+                foreach (Button b in emojiButtonsList)
+                {
+                    b.IsEnabled = false;
+                }
             }
         }
         #endregion
@@ -1087,7 +1150,7 @@ namespace XML_Editor_WuffPad
             return true;
         }
         #endregion
-        #endregion
 
+        #endregion
     }
 }

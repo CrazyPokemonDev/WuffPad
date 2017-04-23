@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:XML_Editor_WuffPad"
         xmlns:comm="clr-namespace:XML_Editor_WuffPad.Commands"
         mc:Ignorable="d"
-        Title="WuffPad" Height="700" Width="1050" Icon="Android_wuff.ico"
+        Title="WuffPad" Height="700" Width="1312.5" Icon="Android_wuff.ico"
         Closing="wuffPadWindow_Closing" Top="20" Left="20">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="ApplicationCommands.Save"/>
@@ -27,16 +27,17 @@
         <CommandBinding Command="ApplicationCommands.Find"
                         Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
-    <Grid MouseDown="notList_MouseDown">
+    <Grid x:Name="mainGrid" MouseDown="notList_MouseDown">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition Width="0.5*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu x:Name="menuBar" Margin="0,0,0.4,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="18">
+        <Menu x:Name="menuBar" Margin="0,0,0.4,0" VerticalAlignment="Top" Grid.ColumnSpan="3" Height="18">
             <MenuItem x:Name="fileMenuItem" Header="File">
                 <MenuItem x:Name="fileOpenMenuItem" Header="Open" HorizontalAlignment="Left" Command="ApplicationCommands.Open"/>
                 <MenuItem x:Name="newFileMenuItem" Header="New" HorizontalAlignment="Left" Command="ApplicationCommands.New"/>
@@ -70,18 +71,12 @@
                 <GridView x:Name="listItemsGrid" AllowsColumnReorder="True"
                           ColumnHeaderToolTip="Strings">
                     <GridViewColumn Header="String Key "
-                                    DisplayMemberBinding="{Binding Key}">
-
-                    </GridViewColumn>
+                                    DisplayMemberBinding="{Binding Key}"/>
                     <GridViewColumn Header=" Values "
-                                    DisplayMemberBinding="{Binding ValuesCount}">
-
-                    </GridViewColumn>
+                                    DisplayMemberBinding="{Binding ValuesCount}"/>
                     <GridViewColumn Header=" Description"
                                     DisplayMemberBinding="{Binding Description}"
-                                    Width="400">
-
-                    </GridViewColumn>
+                                    Width="400"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -97,11 +92,12 @@
             <ListView.View>
                 <GridView x:Name="listValuesGrid" AllowsColumnReorder="True"
                           ColumnHeaderToolTip="Strings">
-                    <GridViewColumn x:Name="contentColumn" Header="Content" Width="500">
-
-                    </GridViewColumn>
+                    <GridViewColumn x:Name="contentColumn" Header="Content" Width="500"/>
                 </GridView>
             </ListView.View>
         </ListView>
+        <ScrollViewer Grid.Column="2" Grid.RowSpan="2">
+            <Grid x:Name="emojiGrid" Grid.Column="2" Margin="10,23,10,10" Grid.RowSpan="2"/>
+        </ScrollViewer>
     </Grid>
 </Window>
