@@ -96,6 +96,7 @@ namespace XML_Editor_WuffPad
         #endregion
 
         #region Constructor
+        #region Normal startup
         public MainWindow()
         {
             InitializeComponent();
@@ -107,6 +108,21 @@ namespace XML_Editor_WuffPad
             initializeEmojiKeyboard();
             updateStatus();
         }
+        #endregion
+        #region Opening a file
+        public MainWindow(string path)
+        {
+            InitializeComponent();
+            try { fetchNewestFiles(); }
+            catch /*(Exception e)*/ { /*MessageBox.Show(e.ToString() +e.Message + e.StackTrace);*/ }
+            getDictAndDefaultKeys();
+            listItemsView.ItemsSource = currentStringsList;
+            listValuesView.ItemsSource = currentValuesList;
+            initializeEmojiKeyboard();
+            updateStatus();
+            loadFileFromOutside(path);
+        }
+        #endregion
         #endregion
 
         #region Functionable Methods
@@ -546,6 +562,15 @@ namespace XML_Editor_WuffPad
                 b.IsEnabled = false;
                 emojiButtonsList.Add(b);
             }
+        }
+        #endregion
+        #region Load file from outside
+        public void loadFileFromOutside(string path)
+        {
+            loadDirectory = path;
+            saveDirectory = path;
+            directoryChosen = true;
+            loadFile();
         }
         #endregion
         #endregion
