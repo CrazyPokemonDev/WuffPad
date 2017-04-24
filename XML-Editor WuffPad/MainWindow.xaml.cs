@@ -525,7 +525,6 @@ namespace XML_Editor_WuffPad
         #region Initialize emoji keyboard
         private void initializeEmojiKeyboard()
         {
-            //this is only testing stuff yet
             for (int i=0; i<6; i++)
             {
                 ColumnDefinition cd = new ColumnDefinition();
