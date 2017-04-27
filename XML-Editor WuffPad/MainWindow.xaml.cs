@@ -668,20 +668,20 @@ namespace XML_Editor_WuffPad
                 }
             }
             XmlStrings result;
-            /*try
-            {*/
+            try
+            {
                 XmlSerializer serializer = new XmlSerializer(typeof(XmlStrings));
                 using (TextReader tr = new StringReader(fileString))
                 {
                     result = (XmlStrings)serializer.Deserialize(tr);
                 }
                 return result;
-            /*}
+            }
             catch
             {
                 MessageBox.Show("Failed to load file");
                 return null;
-            }*/
+            }
         }
         #endregion
         #region To utf-8 (deprecated?)
