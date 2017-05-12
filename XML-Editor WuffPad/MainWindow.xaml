@@ -58,7 +58,7 @@
             </MenuItem>
         </Menu>
         <TextBox x:Name="textBox" Margin="10,5,10.4,9.8" Grid.Row="1" TextWrapping="Wrap" IsEnabled="False" Grid.ColumnSpan="2" 
-                 TextChanged="textBox_TextChanged" MouseDown="notList_MouseDown"/>
+                 TextChanged="textBox_TextChanged" MouseDown="notList_MouseDown" AcceptsReturn="True"/>
         <ListView x:Name="listItemsView" Margin="10,23,5,5" IsEnabled="False" SelectionChanged="listItemsView_SelectionChanged"
                   SelectionMode="Single">
             <ListView.ContextMenu>
