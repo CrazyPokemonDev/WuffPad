@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XML_Editor_WuffPad"
         mc:Ignorable="d"
-        Title="Language Properties" Height="200" Width="400" ResizeMode="NoResize"
+        Title="Language Properties" Height="270" Width="400" ResizeMode="NoResize"
         ContentRendered="Window_ContentRendered"
         Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
@@ -27,7 +28,11 @@
         <TextBox x:Name="textBoxOwner" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="10.2,0,0,4.8" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="120" Grid.ColumnSpan="2"/>
         <TextBox x:Name="textBoxBase" HorizontalAlignment="Left" Height="23" Margin="10,0,0,4.6" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="120"/>
         <TextBox x:Name="textBoxVariant" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="10.2,0,0,4.6" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="120" Grid.ColumnSpan="2"/>
-        <Button x:Name="buttonOK" Content="OK" Grid.Column="1" Margin="10,27.4,10,10" Grid.Row="2" VerticalAlignment="Bottom" Width="75" Click="buttonOK_Click"/>
-        <Button x:Name="buttonCancel" Content="Cancel" Grid.Column="2" Margin="10,27.4,10,10" Grid.Row="2" VerticalAlignment="Bottom" Width="75" Click="buttonCancel_Click"/>
+        <Button x:Name="buttonOK" Content="OK" Grid.Column="1" Margin="10,27.4,10,10" Grid.Row="3" VerticalAlignment="Bottom" Width="75" Click="buttonOK_Click"/>
+        <Button x:Name="buttonCancel" Content="Cancel" Grid.Column="2" Margin="10,27.4,10,10" Grid.Row="3" VerticalAlignment="Bottom" Width="75" Click="buttonCancel_Click"/>
+        <Label x:Name="label4" Content="IEFT language tag" HorizontalAlignment="Left" Margin="0" Grid.Row="2" VerticalAlignment="Top"/>
+        <Label x:Name="label5" Content="Default language? (true/false)" Grid.Column="1" HorizontalAlignment="Left" Margin="0" Grid.Row="2" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="textBoxCode" HorizontalAlignment="Left" Height="23" Margin="10,0,0,5" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="120"/>
+        <TextBox x:Name="textBoxDefault" Grid.ColumnSpan="2" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="10,0,0,5" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="120"/>
     </Grid>
 </Window>

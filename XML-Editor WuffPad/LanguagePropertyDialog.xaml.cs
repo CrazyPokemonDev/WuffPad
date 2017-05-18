@@ -13,7 +13,9 @@ namespace XML_Editor_WuffPad
         private string __name;
         private string __owner;
         private string __variant;
-        public LanguagePropertyDialog(bool firstTime = false, string name = "", string owner = "", string _base = "", string variant = "")
+        private string __code;
+        private string __isDefault;
+        public LanguagePropertyDialog(bool firstTime = false, string name = "", string owner = "", string _base = "", string variant = "", string code = "", string isDefault = "")
         {
             InitializeComponent();
             canCancel = !firstTime;
@@ -21,6 +23,8 @@ namespace XML_Editor_WuffPad
             __name = name;
             __owner = owner;
             __variant = variant;
+            __code = code;
+            __isDefault = isDefault;
         }
 
         #region Fields
@@ -53,6 +57,22 @@ namespace XML_Editor_WuffPad
             get
             {
                 return textBoxVariant.Text;
+            }
+        }
+
+        public string LanguageCode
+        {
+            get
+            {
+                return textBoxCode.Text;
+            }
+        }
+
+        public string LanguageIsDefault
+        {
+            get
+            {
+                return textBoxDefault.Text;
             }
         }
         #endregion

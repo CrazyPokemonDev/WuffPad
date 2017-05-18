@@ -12,5 +12,21 @@ namespace XML_Editor_WuffPad.XMLClasses
         public string Variant { get; set; }
         [XmlAttribute("owner")]
         public string Owner { get; set; }
+        [XmlAttribute("code")]
+        public string Code { get; set; }
+        [XmlAttribute("isDefault")]
+        private string IsDefaultString { get; set; }
+        [XmlIgnore]
+        public bool IsDefault
+        {
+            get
+            {
+                return IsDefaultString == "true";
+            }
+            set
+            {
+                IsDefaultString = value ? "true" : "false";
+            }
+        }
     }
 }

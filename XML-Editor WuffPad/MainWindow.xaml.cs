@@ -469,15 +469,18 @@ namespace XML_Editor_WuffPad
                 MessageBoxButton.OKCancel);
             if (res == MessageBoxResult.OK)
             {
-                LanguagePropertyDialog lpd = new LanguagePropertyDialog(name: loadedFile.Language.Name, 
-                    owner: loadedFile.Language.Owner, _base: loadedFile.Language.Base, 
-                    variant: loadedFile.Language.Variant);
+                LanguagePropertyDialog lpd = new LanguagePropertyDialog(name: loadedFile.Language.Name,
+                    owner: loadedFile.Language.Owner, _base: loadedFile.Language.Base,
+                    variant: loadedFile.Language.Variant, code: loadedFile.Language.Code,
+                    isDefault: loadedFile.Language.IsDefault ? "true" : "false");
                 if (lpd.ShowDialog() == true)
                 {
                     loadedFile.Language.Base = lpd.LanguageBase;
                     loadedFile.Language.Name = lpd.LanguageName;
                     loadedFile.Language.Owner = lpd.LanguageOwner;
                     loadedFile.Language.Variant = lpd.LanguageVariant;
+                    loadedFile.Language.Code = lpd.LanguageCode;
+                    loadedFile.Language.IsDefault = lpd.LanguageIsDefault == "true" ? true : false;
                 }
             }
         }
