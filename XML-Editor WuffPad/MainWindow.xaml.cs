@@ -661,7 +661,7 @@ namespace XML_Editor_WuffPad
                         commentDic.Add(lastKey, new List<string>());
                     }
                     string s2 = s1;
-                    if (!s2.Trim().EndsWith("-->")) s2 += "-->";
+                    //if (!s2.Trim().EndsWith("-->")) s2 += "-->";
                     commentDic[lastKey].Add(s2);
                 }
                 else if (s.StartsWith("<string "))
