@@ -7,7 +7,7 @@
         xmlns:comm="clr-namespace:XML_Editor_WuffPad.Commands"
         mc:Ignorable="d"
         Title="WuffPad" Height="700" Width="1312.5" Icon="Android_wuff.ico"
-        Closing="wuffPadWindow_Closing" Top="20" Left="20">
+        Closing="WuffPadWindow_Closing" Top="20" Left="20">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="ApplicationCommands.Save"/>
     </Window.InputBindings>
@@ -27,7 +27,7 @@
         <CommandBinding Command="ApplicationCommands.Find"
                         Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
-    <Grid x:Name="mainGrid" MouseDown="notList_MouseDown">
+    <Grid x:Name="mainGrid" MouseDown="NotList_MouseDown">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -44,26 +44,26 @@
                 <MenuItem x:Name="fileCloseMenuItem" Header="Close" HorizontalAlignment="Left" IsEnabled="False" Command="ApplicationCommands.Close"/>
                 <Separator HorizontalAlignment="Left"/>
                 <MenuItem x:Name="fileSaveMenuItem" Header="Save" HorizontalAlignment="Left" InputGestureText="Strg + S" IsEnabled="False" Command="ApplicationCommands.Save"/>
-                <MenuItem x:Name="fileUploadMenuItem" Header="Upload" IsEnabled="False" Click="fileUploadMenuItem_Click"/>
+                <MenuItem x:Name="fileUploadMenuItem" Header="Upload" IsEnabled="False" Click="FileUploadMenuItem_Click"/>
             </MenuItem>
             <MenuItem x:Name="editMenuItem" Header="Edit">
                 <MenuItem x:Name="editLanguageMenuItem" Header="Language properties" Command="comm:CustomCommands.LanguageProperties" HorizontalAlignment="Left" IsEnabled="False"/>
                 <MenuItem x:Name="editFindMenuItem" Header="Find" Command="ApplicationCommands.Find" HorizontalAlignment="Left" IsEnabled="False"/>
             </MenuItem>
             <MenuItem x:Name="infoMenuItem" Header="Info">
-                <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="closedlistItem_Click"/>
-                <MenuItem x:Name="underdevItem" Header="#underdev" Click="underdevItem_Click"/>
-                <MenuItem x:Name="wikiItem" Header="Wiki" Click="wikiItem_Click"/>
-                <MenuItem x:Name="feedbackItem" Header="Bug Report and Feedback" Click="feedbackItem_Click"/>
+                <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="ClosedlistItem_Click"/>
+                <MenuItem x:Name="underdevItem" Header="#underdev" Click="UnderdevItem_Click"/>
+                <MenuItem x:Name="wikiItem" Header="Wiki" Click="WikiItem_Click"/>
+                <MenuItem x:Name="feedbackItem" Header="Bug Report and Feedback" Click="FeedbackItem_Click"/>
             </MenuItem>
         </Menu>
         <TextBox x:Name="textBox" Margin="10,5,10.4,9.8" Grid.Row="1" TextWrapping="Wrap" IsEnabled="False" Grid.ColumnSpan="2" 
-                 TextChanged="textBox_TextChanged" MouseDown="notList_MouseDown" AcceptsReturn="True"/>
-        <ListView x:Name="listItemsView" Margin="10,23,5,5" IsEnabled="False" SelectionChanged="listItemsView_SelectionChanged"
+                 TextChanged="TextBox_TextChanged" MouseDown="NotList_MouseDown" AcceptsReturn="True"/>
+        <ListView x:Name="listItemsView" Margin="10,23,5,5" IsEnabled="False" SelectionChanged="ListItemsView_SelectionChanged"
                   SelectionMode="Single">
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem x:Name="cmItemsAdd" Click="cmItemsAdd_Click" Header="Add Item"/>
+                    <MenuItem x:Name="cmItemsAdd" Click="CmItemsAdd_Click" Header="Add Item"/>
                     <MenuItem x:Name="cmItemsDelete" Command="ApplicationCommands.Delete" Header="Delete"/>
                 </ContextMenu>
             </ListView.ContextMenu>
@@ -81,11 +81,11 @@
             </ListView.View>
         </ListView>
         <ListView x:Name="listValuesView" Grid.Column="1" Margin="5,23,10,5" IsEnabled="False"
-                  SelectionChanged="listValuesView_SelectionChanged"
+                  SelectionChanged="ListValuesView_SelectionChanged"
                   SelectionMode="Single">
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem x:Name="cmValuesAdd" Click="cmValuesAdd_Click" Header="Add Value"/>
+                    <MenuItem x:Name="cmValuesAdd" Click="CmValuesAdd_Click" Header="Add Value"/>
                     <MenuItem x:Name="cmValuesDelete" Command="ApplicationCommands.Delete" Header="Delete"/>
                 </ContextMenu>
             </ListView.ContextMenu>
