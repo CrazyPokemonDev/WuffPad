@@ -236,6 +236,55 @@ namespace XML_Editor_WuffPad
                 }
             }
             #endregion
+            #region checking for duplicated strings
+            List<string> hadKeys = new List<string>();
+            foreach (string s in hasKeys)
+            {
+                if (hadKeys.Contains(s))
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                        $"The key {s} is duplicated. The second instance won't be used. Join the two instances?",
+                        "Duplicated string", MessageBoxButton.YesNoCancel);
+                    switch (result)
+                    {
+                        case MessageBoxResult.Yes:
+                            var toJoinValues = new List<string>();
+                            bool first = true;
+                            var toRemove = new List<XmlString>();
+                            foreach (var xs in loadedFile.Strings)
+                            {
+                                if (xs.Key == s)
+                                {
+                                    if (!first)
+                                    {
+                                        toJoinValues.AddRange(xs.Values);
+                                        toRemove.Add(xs);
+                                    }
+                                    else first = false;
+                                }
+                            }
+                            foreach (var r in toRemove)
+                            {
+                                loadedFile.Strings.Remove(r);
+                            }
+                            foreach (var xs in loadedFile.Strings)
+                            {
+                                if (xs.Key == s)
+                                {
+                                    foreach (string v in toJoinValues)
+                                    {
+                                        xs.Values.Add(v);
+                                    }
+                                }
+                            }
+                            break;
+                        case MessageBoxResult.Cancel:
+                            return false;
+                    }
+                }
+                hadKeys.Add(s);
+            }
+            #endregion
             return doSave;
         }
         #endregion
@@ -599,6 +648,7 @@ namespace XML_Editor_WuffPad
                 editLanguageMenuItem.IsEnabled = true;
                 fileUploadMenuItem.IsEnabled = true;
                 editFindMenuItem.IsEnabled = true;
+                fileFindMenuItem.IsEnabled = true;
             }
             else
             {
@@ -608,6 +658,7 @@ namespace XML_Editor_WuffPad
                 editLanguageMenuItem.IsEnabled = false;
                 fileUploadMenuItem.IsEnabled = false;
                 editFindMenuItem.IsEnabled = false;
+                fileFindMenuItem.IsEnabled = false;
             }
             if (itemIsOpen)
             {

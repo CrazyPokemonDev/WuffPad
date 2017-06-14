@@ -43,6 +43,8 @@
                 <MenuItem x:Name="newFileMenuItem" Header="New" HorizontalAlignment="Left" Command="ApplicationCommands.New"/>
                 <MenuItem x:Name="fileCloseMenuItem" Header="Close" HorizontalAlignment="Left" IsEnabled="False" Command="ApplicationCommands.Close"/>
                 <Separator HorizontalAlignment="Left"/>
+                <MenuItem x:Name="fileFindMenuItem" Header="Find" HorizontalAlignment="Left" IsEnabled="False" Command="ApplicationCommands.Find"/>
+                <Separator HorizontalAlignment="Left"/>
                 <MenuItem x:Name="fileSaveMenuItem" Header="Save" HorizontalAlignment="Left" InputGestureText="Strg + S" IsEnabled="False" Command="ApplicationCommands.Save"/>
                 <MenuItem x:Name="fileUploadMenuItem" Header="Upload" IsEnabled="False" Click="FileUploadMenuItem_Click"/>
             </MenuItem>
