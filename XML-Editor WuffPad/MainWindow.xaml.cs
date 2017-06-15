@@ -362,28 +362,6 @@ namespace XML_Editor_WuffPad
             System.IO.File.Move("temp", pathTo);
         }
         #endregion
-        #region Set setting
-        private void SetSetting(string key, bool value)
-        {
-            switch (key)
-            {
-                case "commentWarningDisable":
-                    Settings.Default.doNotShowWarningAgain = value;
-                    break;
-            }
-        }
-        #endregion
-        #region Check Setting
-        private bool CheckSetting(string key)
-        {
-            switch (key)
-            {
-                case "commentWarningDisable":
-                    return Settings.Default.doNotShowWarningAgain;
-            }
-            throw new Exception("Setting not found");
-        }
-        #endregion
         #region Get a missing default key
         private string GetDefaultMissingKey()
         {
@@ -914,14 +892,6 @@ namespace XML_Editor_WuffPad
         {
             if (e.Command == ApplicationCommands.Open)
             {
-                if (!CheckSetting("commentWarningDisable"))
-                {
-                    CommentWarningDialog cwd = new CommentWarningDialog();
-                    if (cwd.ShowDialog() == true)
-                    {
-                        SetSetting("commentWarningDisable", cwd.DoNotShowAgain);
-                    }
-                }
                 bool closed = true;
                 if (fileIsOpen)
                 {
