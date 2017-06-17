@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using XML_Editor_WuffPad.Properties;
 using System.Text.RegularExpressions;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace XML_Editor_WuffPad
 {
@@ -545,6 +547,8 @@ namespace XML_Editor_WuffPad
                     case clickedValues:
                         string s = currentString.Values[currentValueIndex];
                         currentString.Values.Remove(s);
+                        ICollectionView view = CollectionViewSource.GetDefaultView(currentStringsList);
+                        view.Refresh();
                         currentValuesList = currentString.Values;
                         var temp = currentStringIndex;
                         loadedFile.Strings[currentStringIndex] = currentString;
@@ -1081,6 +1085,8 @@ namespace XML_Editor_WuffPad
                 textHasChanged = true;
                 ShowValues(currentString);
                 ShowValue(currentValue);
+                ICollectionView view = CollectionViewSource.GetDefaultView(currentStringsList);
+                view.Refresh();
                 valueIsOpen = true;
                 listValuesView.SelectedIndex = currentString.Values.Count - 1;
                 listValuesView.ScrollIntoView(currentString.Values[currentString.Values.Count - 1]);
