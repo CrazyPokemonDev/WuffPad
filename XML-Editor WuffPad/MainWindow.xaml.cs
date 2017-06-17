@@ -18,6 +18,7 @@ using Telegram.Bot.Types;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using XML_Editor_WuffPad.Properties;
+using System.Text.RegularExpressions;
 
 namespace XML_Editor_WuffPad
 {
@@ -138,7 +139,7 @@ namespace XML_Editor_WuffPad
                 #region Gif string length check
                 if (s.Isgif)
                 {
-                    foreach(string v in s.Values)
+                    foreach (string v in s.Values)
                     {
                         if (v.Length > 200)
                         {
@@ -184,7 +185,7 @@ namespace XML_Editor_WuffPad
                             if (!str.Contains("{" + i + "}"))
                             {
                                 MessageBoxResult result = MessageBox.Show("A value of " + s.Key +
-                                    " does not contain a {" + i + "}.\n" + 
+                                    " does not contain a {" + i + "}.\n" +
                                     "Save anyway? Press cancel to jump there.",
                                     "Warning", MessageBoxButton.YesNoCancel);
                                 if (result == MessageBoxResult.No)
@@ -465,7 +466,7 @@ namespace XML_Editor_WuffPad
                 directoryChosen = true;
                 /*try
                 {*/
-                    LoadFile();
+                LoadFile();
                 /*}
                 catch
                 {
@@ -560,7 +561,7 @@ namespace XML_Editor_WuffPad
         #region Initialize emoji keyboard
         private void InitializeEmojiKeyboard()
         {
-            for (int i=0; i<6; i++)
+            for (int i = 0; i < 6; i++)
             {
                 ColumnDefinition cd = new ColumnDefinition()
                 {
@@ -652,7 +653,7 @@ namespace XML_Editor_WuffPad
             if (valueIsOpen)
             {
                 textBox.IsEnabled = true;
-                foreach(Button b in emojiButtonsList)
+                foreach (Button b in emojiButtonsList)
                 {
                     b.IsEnabled = true;
                 }
@@ -690,7 +691,7 @@ namespace XML_Editor_WuffPad
         #region Read xml string
         private XmlStrings ReadXmlString(string fileString)
         {
-            string[] splitted = fileString.Split('\n');
+            /*string[] splitted = fileString.Split('\n');
             string lastKey = "";
             foreach (string s1 in splitted)
             {
@@ -711,6 +712,18 @@ namespace XML_Editor_WuffPad
                     int length = s.Substring(index).IndexOf('"');
                     lastKey = s.Substring(index, length);
                 }
+            }*/
+            foreach (Match match in Regex.Matches(fileString,
+                $@"(?s){Regex.Escape("<!--")}((?!{Regex.Escape("-->")}).)*{Regex.Escape("-->")}"))
+            {
+                int index = fileString.Remove(match.Index).LastIndexOf("key=\"") + 5;
+                int length = fileString.Substring(index).IndexOf('"');
+                string key = fileString.Substring(index, length);
+                if (!commentDic.ContainsKey(key))
+                {
+                    commentDic.Add(key, new List<string>());
+                }
+                commentDic[key].Add(match.ToString());
             }
             XmlStrings result;
 #if DEBUG
@@ -718,12 +731,12 @@ namespace XML_Editor_WuffPad
             try
             {
 #endif
-                XmlSerializer serializer = new XmlSerializer(typeof(XmlStrings));
-                using (TextReader tr = new StringReader(fileString))
-                {
-                    result = (XmlStrings)serializer.Deserialize(tr);
-                }
-                return result;
+            XmlSerializer serializer = new XmlSerializer(typeof(XmlStrings));
+            using (TextReader tr = new StringReader(fileString))
+            {
+                result = (XmlStrings)serializer.Deserialize(tr);
+            }
+            return result;
 #if DEBUG
 #else
             }
@@ -734,8 +747,8 @@ namespace XML_Editor_WuffPad
             }
 #endif
         }
-#endregion
-#region Serialize xml to string
+        #endregion
+        #region Serialize xml to string
         private string SerializeXmlToString()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(XmlStrings));
@@ -777,8 +790,8 @@ namespace XML_Editor_WuffPad
                 return result.Replace("utf-16", "utf-8");
             }
         }
-#endregion
-#region Save xml file
+        #endregion
+        #region Save xml file
         private void SaveXmlFile()
         {
             if (!directoryChosen)
@@ -797,8 +810,8 @@ namespace XML_Editor_WuffPad
             }
             textHasChanged = false;
         }
-#endregion
-#region Get description
+        #endregion
+        #region Get description
         private string GetDescription(string key)
         {
             if (key != null)
@@ -814,8 +827,8 @@ namespace XML_Editor_WuffPad
             }
             return "No description yet.";
         }
-#endregion
-#region Check if saved
+        #endregion
+        #region Check if saved
         private bool CheckForSaved()
         {
             if (textHasChanged)
@@ -833,18 +846,18 @@ namespace XML_Editor_WuffPad
             }
             return true;
         }
-#endregion
-#region Get file from scratch
+        #endregion
+        #region Get file from scratch
         private void GetFileFromScratch()
         {
             if (System.IO.File.Exists(fileScratchPath)) loadedFile = ReadXmlString(System.IO.File.ReadAllText(fileScratchPath));
             else throw new Exception("Failed to load file");
         }
-#endregion
-#endregion
+        #endregion
+        #endregion
 
-#region XAML Stuff
-#region Text box text changed
+        #region XAML Stuff
+        #region Text box text changed
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (valueIsOpen && !valueHasChanged)
@@ -872,8 +885,8 @@ namespace XML_Editor_WuffPad
             fromTextBox = false;
             UpdateStatus();
         }
-#endregion
-#region Window closing
+        #endregion
+        #region Window closing
         private void WuffPadWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (textHasChanged)
@@ -886,14 +899,14 @@ namespace XML_Editor_WuffPad
                         SaveXmlFile();
                     }
                 }
-                else if(result == MessageBoxResult.Cancel)
+                else if (result == MessageBoxResult.Cancel)
                 {
                     e.Cancel = true;
                 }
             }
         }
-#endregion
-#region Command executed
+        #endregion
+        #region Command executed
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (e.Command == ApplicationCommands.Open)
@@ -905,7 +918,7 @@ namespace XML_Editor_WuffPad
                 }
                 if (closed) OpenFile();
             }
-            else if(e.Command == ApplicationCommands.Save)
+            else if (e.Command == ApplicationCommands.Save)
             {
                 if (fileIsOpen)
                 {
@@ -915,13 +928,13 @@ namespace XML_Editor_WuffPad
                     }
                 }
             }
-            else if(e.Command == ApplicationCommands.Close)
+            else if (e.Command == ApplicationCommands.Close)
             {
                 if (fileIsOpen) CloseFile();
             }
-            else if(e.Command == ApplicationCommands.New)
+            else if (e.Command == ApplicationCommands.New)
             {
-                if(CloseFile()) NewFile();
+                if (CloseFile()) NewFile();
             }
             else if (e.Command == ApplicationCommands.Delete)
             {
@@ -942,8 +955,8 @@ namespace XML_Editor_WuffPad
             }
             UpdateStatus();
         }
-#endregion
-#region List of strings - selection changed
+        #endregion
+        #region List of strings - selection changed
         private void ListItemsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!fromTextBox)
@@ -975,8 +988,8 @@ namespace XML_Editor_WuffPad
                 fromTextBox = false;
             }
         }
-#endregion
-#region List of values - selection changed
+        #endregion
+        #region List of values - selection changed
         private void ListValuesView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!fromTextBox)
@@ -1004,8 +1017,8 @@ namespace XML_Editor_WuffPad
                 fromTextBox = false;
             }
         }
-#endregion
-#region Add a string
+        #endregion
+        #region Add a string
         private void CmItemsAdd_Click(object sender, RoutedEventArgs e)
         {
             NewStringDialog nsd = new NewStringDialog(GetDefaultMissingKey());
@@ -1039,14 +1052,14 @@ namespace XML_Editor_WuffPad
                 }
             }
         }
-#endregion
-#region Clicked on not list (deprecated?)
+        #endregion
+        #region Clicked on not list (deprecated?)
         private void NotList_MouseDown(object sender, MouseButtonEventArgs e)
         {
             lastClicked = -1;
         }
-#endregion
-#region Add value
+        #endregion
+        #region Add value
         private void CmValuesAdd_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show("Create a new value?", "", MessageBoxButton.OKCancel);
@@ -1074,8 +1087,8 @@ namespace XML_Editor_WuffPad
                 UpdateStatus();
             }
         }
-#endregion
-#region #closedlist
+        #endregion
+        #region #closedlist
         private void ClosedlistItem_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -1088,7 +1101,7 @@ namespace XML_Editor_WuffPad
                 {
                     closedlist = sr.ReadToEnd();
                 }
-                ClosedlistWindow cw = new ClosedlistWindow("CURRENT CLOSEDLIST", 
+                ClosedlistWindow cw = new ClosedlistWindow("CURRENT CLOSEDLIST",
                     closedlist.Replace(":", ": "));
                 cw.ShowDialog();
             }
@@ -1097,8 +1110,8 @@ namespace XML_Editor_WuffPad
                 MessageBox.Show("Failed to fetch #closedlist.");
             }
         }
-#endregion
-#region #underdev
+        #endregion
+        #region #underdev
         private void UnderdevItem_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -1120,8 +1133,8 @@ namespace XML_Editor_WuffPad
                 MessageBox.Show("Failed to fetch #underdev.");
             }
         }
-#endregion
-#region Upload file
+        #endregion
+        #region Upload file
         private void FileUploadMenuItem_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult res = MessageBox.Show("Upload file?", "Upload", MessageBoxButton.YesNo);
@@ -1146,38 +1159,38 @@ namespace XML_Editor_WuffPad
                 MessageBox.Show("An error occurred.");
             }
         }
-#endregion
-#region Wiki
+        #endregion
+        #region Wiki
         private void WikiItem_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(wikiPageUrl);
         }
-#endregion
-#region Feedback
+        #endregion
+        #region Feedback
         private void FeedbackItem_Click(object sender, RoutedEventArgs e)
         {
             FeedbackDialog fd = new FeedbackDialog(token);
             fd.ShowDialog();
         }
-#endregion
-#endregion
+        #endregion
+        #endregion
 
-#region Display Control
-#region Show values
+        #region Display Control
+        #region Show values
         private void ShowValues(XmlString s)
         {
             currentString = s;
         }
-#endregion
-#region Show value
+        #endregion
+        #region Show value
         private void ShowValue(string s)
         {
             valueHasChanged = true;
             textBox.Text = s;
             currentValue = s;
         }
-#endregion
-#region Close file
+        #endregion
+        #region Close file
         private bool CloseFile()
         {
             if (textHasChanged)
@@ -1210,7 +1223,7 @@ namespace XML_Editor_WuffPad
             valueHasChanged = false;
             return true;
         }
-#endregion
-#endregion
+        #endregion
+        #endregion
     }
 }
