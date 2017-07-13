@@ -332,7 +332,7 @@ namespace XML_Editor_WuffPad
             {
                 if (version_oldDict.ContainsKey(s))
                 {
-                    if (version_oldDict[s] < versionDict[s])
+                    if (version_oldDict[s] < versionDict[s] || s == "token.cod")
                     {
                         DownloadFileByName(s);
                     }
