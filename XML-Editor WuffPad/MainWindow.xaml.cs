@@ -115,14 +115,7 @@ namespace XML_Editor_WuffPad
         #region Opening a file
         public MainWindow(string path)
         {
-            InitializeComponent();
-            try { FetchNewestFiles(); }
-            catch /*(Exception e)*/ { /*MessageBox.Show(e.ToString() +e.Message + e.StackTrace);*/ }
-            GetDictAndDefaultKeys();
-            listItemsView.ItemsSource = currentStringsList;
-            listValuesView.ItemsSource = currentValuesList;
-            InitializeEmojiKeyboard();
-            UpdateStatus();
+            new MainWindow();
             LoadFileFromOutside(path);
         }
         #endregion
