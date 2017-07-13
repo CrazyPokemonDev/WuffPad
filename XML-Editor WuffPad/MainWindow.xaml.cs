@@ -568,6 +568,11 @@ namespace XML_Editor_WuffPad
             }
             int column = -1;
             int row = 0;
+            RowDefinition rdBase = new RowDefinition()
+            {
+                Height = new GridLength(30, GridUnitType.Pixel)
+            };
+            emojiGrid.RowDefinitions.Add(rdBase);
             foreach (string s in emojisList)
             {
                 column++;
