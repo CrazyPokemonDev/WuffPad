@@ -1014,6 +1014,7 @@ namespace XML_Editor_WuffPad
                 listItemsView.SelectedIndex = currentStringIndex;
                 UpdateStatus();
                 lastClicked = clickedItems;
+                if (currentValuesList.Count > 0) listValuesView.SelectedIndex = 0;
             }
             else
             {
