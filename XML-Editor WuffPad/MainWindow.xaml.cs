@@ -21,7 +21,6 @@ using XML_Editor_WuffPad.Properties;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Windows.Data;
-using XML_Editor_WuffPad.Dialogs;
 
 namespace XML_Editor_WuffPad
 {
@@ -111,8 +110,6 @@ namespace XML_Editor_WuffPad
             listValuesView.ItemsSource = currentValuesList;
             InitializeEmojiKeyboard();
             UpdateStatus();
-            ScriptDialog sd = new ScriptDialog();
-            sd.ShowDialog();
         }
         #endregion
         #region Opening a file
@@ -1183,12 +1180,6 @@ namespace XML_Editor_WuffPad
         {
             FeedbackDialog fd = new FeedbackDialog(token);
             fd.ShowDialog();
-        }
-        #endregion
-        #region Edit script menu item
-        private void EditScriptMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
         }
         #endregion
         #endregion

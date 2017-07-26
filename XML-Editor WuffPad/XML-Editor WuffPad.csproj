@@ -120,12 +120,15 @@
       <DependentUpon>LanguagePropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\CustomCommands.cs" />
-    <Compile Include="Dialogs\ScriptDialog.xaml.cs">
-      <DependentUpon>ScriptDialog.xaml</DependentUpon>
+    <Compile Include="XMLClasses\XmlStrings.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="XMLClasses\XmlStrings.cs" />
-    <Compile Include="XMLClasses\XmlLanguage.cs" />
-    <Compile Include="XMLClasses\XmlString.cs" />
+    <Compile Include="XMLClasses\XmlLanguage.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="XMLClasses\XmlString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Page Include="ClosedlistWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -143,10 +146,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\LanguagePropertyDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\ScriptDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
