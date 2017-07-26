@@ -84,6 +84,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="Telegram.Bot, Version=10.4.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -93,6 +94,7 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -102,22 +104,25 @@
     <Compile Include="ClosedlistWindow.xaml.cs">
       <DependentUpon>ClosedlistWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommentWarningDialog.xaml.cs">
+    <Compile Include="Dialogs\CommentWarningDialog.xaml.cs">
       <DependentUpon>CommentWarningDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FeedbackDialog.xaml.cs">
+    <Compile Include="Dialogs\FeedbackDialog.xaml.cs">
       <DependentUpon>FeedbackDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FindDialog.xaml.cs">
+    <Compile Include="Dialogs\FindDialog.xaml.cs">
       <DependentUpon>FindDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NewStringDialog.xaml.cs">
+    <Compile Include="Dialogs\NewStringDialog.xaml.cs">
       <DependentUpon>NewStringDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LanguagePropertyDialog.xaml.cs">
+    <Compile Include="Dialogs\LanguagePropertyDialog.xaml.cs">
       <DependentUpon>LanguagePropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\CustomCommands.cs" />
+    <Compile Include="Dialogs\ScriptDialog.xaml.cs">
+      <DependentUpon>ScriptDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="XMLClasses\XmlStrings.cs" />
     <Compile Include="XMLClasses\XmlLanguage.cs" />
     <Compile Include="XMLClasses\XmlString.cs" />
@@ -125,19 +130,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CommentWarningDialog.xaml">
+    <Page Include="Dialogs\CommentWarningDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FeedbackDialog.xaml">
+    <Page Include="Dialogs\FeedbackDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FindDialog.xaml">
+    <Page Include="Dialogs\FindDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LanguagePropertyDialog.xaml">
+    <Page Include="Dialogs\LanguagePropertyDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ScriptDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -153,7 +162,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="NewStringDialog.xaml">
+    <Page Include="Dialogs\NewStringDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
