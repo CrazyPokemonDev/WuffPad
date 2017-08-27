@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,24 +22,21 @@ namespace XML_Editor_WuffPad
     /// </summary>
     public partial class FeedbackDialog : Window
     {
-        private string token;
-        private const long developerID = 267376056;
-        public FeedbackDialog(string botToken)
+        private const string feedbackUrl = "http://88.198.66.60/sendFeedback.php?";
+        public FeedbackDialog()
         {
             InitializeComponent();
-            token = botToken;
         }
 
-        private void sendButton_Click(object sender, RoutedEventArgs e)
+        private void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            TelegramBotClient client = new TelegramBotClient(token);
-            Task t = client.SendTextMessageAsync(developerID, inputBox.Text + "\nFrom: " + usernameBox.Text);
-            t.Wait();
+            HttpClient client = new HttpClient();
+            client.GetAsync(feedbackUrl + "message=" + WebUtility.HtmlEncode(inputBox.Text + "\nFrom: " + usernameBox.Text));
             MessageBox.Show("Message sent!");
             DialogResult = true;
         }
 
-        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
         }

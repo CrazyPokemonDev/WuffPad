@@ -13,9 +13,9 @@
             <RowDefinition Height="2.5*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="textBox" TextWrapping="Wrap" Text="Enter your message" VerticalAlignment="Top" Margin="0,0,-0.4,0" Height="18" Grid.ColumnSpan="2"/>
-        <Button x:Name="sendButton" Content="Send message to developer" Margin="5,5.2,0,5.4" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" Height="19" Width="150" Click="sendButton_Click"/>
-        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" VerticalAlignment="Center" Width="75" Height="19" Grid.ColumnSpan="2" Grid.Column="1" Click="cancelButton_Click"/>
+        <TextBlock x:Name="textBox" TextWrapping="Wrap" Text="Enter your message" VerticalAlignment="Top" Margin="0,0,-0.4,0" Height="18" Grid.ColumnSpan="2"/>
+        <Button x:Name="sendButton" Content="Send message to developer" Margin="5,5.2,0,5.4" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" Height="19" Width="150" Click="SendButton_Click"/>
+        <Button x:Name="cancelButton" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,5,0" Grid.Row="3" VerticalAlignment="Center" Width="75" Height="19" Grid.ColumnSpan="2" Grid.Column="1" Click="CancelButton_Click"/>
         <TextBox x:Name="inputBox" Margin="5" Grid.Row="1" TextWrapping="Wrap" Grid.ColumnSpan="2"/>
         <TextBox x:Name="usernameBox" HorizontalAlignment="Left" Margin="5,5,0,5" Grid.Row="2" TextWrapping="Wrap" Text="Telegram username" Width="120"/>
 

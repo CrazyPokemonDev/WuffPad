@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Net.Http;
 using System.Xml.Serialization;
 using XML_Editor_WuffPad.Commands;
 using XML_Editor_WuffPad.XMLClasses;
@@ -21,6 +22,7 @@ using XML_Editor_WuffPad.Properties;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Windows.Data;
+using File = System.IO.File;
 
 namespace XML_Editor_WuffPad
 {
@@ -51,22 +53,20 @@ namespace XML_Editor_WuffPad
         private static readonly string defaultKeysFilePathOnline = serverBaseUrl + "standardKeys.db";
         private static readonly string versionFilePath = Path.Combine(RootDirectory, "Resources\\versions.txt");
         private static readonly string versionFilePathOnline = serverBaseUrl + "versions.txt";
-        private static readonly string tokenFilePath = Path.Combine(RootDirectory, "Resources\\token.cod");
-        private static readonly string tokenFilePathOnline = serverBaseUrl + "token.cod";
         private static readonly string emojisFilePath = Path.Combine(RootDirectory, "Resources\\emojis.txt");
         private static readonly string emojisFilePathOnline = serverBaseUrl + "emojis.txt";
-        private static readonly string[] filesNames = { "language.xml", "descriptions.dict", "standardKeys.db", "token.cod", "emojis.txt" };
+        private static readonly string[] filesNames = { "language.xml", "descriptions.dict", "standardKeys.db", "emojis.txt" };
         private static readonly Dictionary<string, string[]> namesPathsDict = new Dictionary<string, string[]>()
         {
             {"language.xml", new string[] { fileScratchPathOnline, fileScratchPath } },
             {"descriptions.dict", new string[] { dictFilePathOnline, dictFilePath } },
             {"standardKeys.db", new string[] { defaultKeysFilePathOnline, defaultKeysFilePath } },
-            {"token.cod", new string[] { tokenFilePathOnline, tokenFilePath } },
             {"emojis.txt", new string[] { emojisFilePathOnline, emojisFilePath } }
         };
         private const string closedlistPath = "http://88.198.66.60/getClosedlist.php";
         private const string underdevPath = "http://88.198.66.60/getUnderdev.php";
         private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
+        private const string uploadPath = "http://88.198.66.60/uploadWuffLangfile.php";
         #endregion
         #region Variables
         private bool fileIsOpen = false;
@@ -92,7 +92,6 @@ namespace XML_Editor_WuffPad
         private List<string> commentLines = new List<string>();
         private Dictionary<string, List<string>> commentDic = new Dictionary<string, List<string>>();
         private bool fromTextBox = false;
-        private string token = "";
         private List<Button> emojiButtonsList = new List<Button>();
         private List<string> emojisList = new List<string>();
         #endregion
@@ -379,12 +378,12 @@ namespace XML_Editor_WuffPad
         #region Extract Dictionary, default keys, emojis and token
         private void GetDictAndDefaultKeys()
         {
-            if (System.IO.File.Exists(dictFilePath))
+            if (File.Exists(dictFilePath))
             {
                 string input = System.IO.File.ReadAllText(dictFilePath);
                 descriptionDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(input);
             }
-            if (System.IO.File.Exists(defaultKeysFilePath))
+            if (File.Exists(defaultKeysFilePath))
             {
                 string input = System.IO.File.ReadAllText(defaultKeysFilePath);
                 string[] inputs = input.Split('\n');
@@ -393,12 +392,7 @@ namespace XML_Editor_WuffPad
                     defaultKeysList.Add(s);
                 }
             }
-            if (System.IO.File.Exists(tokenFilePath))
-            {
-                token = System.IO.File.ReadAllText(tokenFilePath);
-                System.IO.File.Delete(tokenFilePath);
-            }
-            if (System.IO.File.Exists(emojisFilePath))
+            if (File.Exists(emojisFilePath))
             {
                 foreach (string s in System.IO.File.ReadAllLines(emojisFilePath, Encoding.UTF8))
                 {
@@ -625,13 +619,8 @@ namespace XML_Editor_WuffPad
             {
                 if (CheckForSaved())
                 {
-                    TelegramBotClient client = new TelegramBotClient(token);
-                    string[] splitted = saveDirectory.Split('\\');
-                    FileStream fs = System.IO.File.OpenRead(saveDirectory);
-                    FileToSend fts = new FileToSend(splitted[splitted.Length - 1], fs);
-                    Task t = client.SendDocumentAsync(UploadChatId, fts,
-                        "Please forward this message to this chat again, so the other bot can see it.");
-                    t.Wait();
+                    WebClient wc = new WebClient();
+                    wc.UploadFile(uploadPath, saveDirectory);
                     MessageBox.Show("File was sent to translation group. It will be uploaded as soon as an admin"
                         + " comes across it.");
                 }
@@ -1178,7 +1167,7 @@ namespace XML_Editor_WuffPad
         #region Feedback
         private void FeedbackItem_Click(object sender, RoutedEventArgs e)
         {
-            FeedbackDialog fd = new FeedbackDialog(token);
+            FeedbackDialog fd = new FeedbackDialog();
             fd.ShowDialog();
         }
         #endregion
