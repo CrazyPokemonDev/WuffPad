@@ -13,5 +13,15 @@ namespace XML_Editor_WuffPad.Commands
                 new KeyGesture(Key.L, ModifierKeys.Control)
             }
             );
+        public static readonly RoutedUICommand Scripts = new RoutedUICommand(
+            "Scripts",
+            "Scripts",
+            typeof(CustomCommands),
+            new InputGestureCollection()
+            {
+                new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift)
+            }
+            );
+        public static readonly RoutedUICommand Tab = new RoutedUICommand("Tab", "Tab", typeof(CustomCommands));
     }
 }

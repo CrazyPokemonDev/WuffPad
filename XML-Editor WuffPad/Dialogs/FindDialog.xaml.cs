@@ -12,7 +12,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using XML_Editor_WuffPad.XMLClasses;
 
 namespace XML_Editor_WuffPad
 {

@@ -122,14 +122,8 @@
       <DependentUpon>LanguagePropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\CustomCommands.cs" />
-    <Compile Include="XMLClasses\XmlStrings.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
-    <Compile Include="XMLClasses\XmlLanguage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
-    <Compile Include="XMLClasses\XmlString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Compile Include="Dialogs\ScriptWindow.xaml.cs">
+      <DependentUpon>ScriptWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="ClosedlistWindow.xaml">
       <SubType>Designer</SubType>
@@ -148,6 +142,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\LanguagePropertyDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\ScriptWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -219,6 +217,12 @@
       <Progid>wuffpadxml</Progid>
       <DefaultIcon>Android_wuff.ico</DefaultIcon>
     </FileAssociation>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XmlClasses\XmlClasses.csproj">
+      <Project>{18cf2465-1642-439e-ab70-bb2641f4476e}</Project>
+      <Name>XmlClasses</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

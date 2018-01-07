@@ -13,7 +13,6 @@ using System.Windows.Input;
 using System.Net.Http;
 using System.Xml.Serialization;
 using XML_Editor_WuffPad.Commands;
-using XML_Editor_WuffPad.XMLClasses;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
@@ -23,6 +22,8 @@ using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Windows.Data;
 using File = System.IO.File;
+using XML_Editor_WuffPad.Dialogs;
+using XMLClasses;
 
 namespace XML_Editor_WuffPad
 {
@@ -94,6 +95,7 @@ namespace XML_Editor_WuffPad
         private bool fromTextBox = false;
         private List<Button> emojiButtonsList = new List<Button>();
         private List<string> emojisList = new List<string>();
+        private ScriptWindow currentScriptWindow;
         #endregion
         #endregion
 
@@ -635,6 +637,18 @@ namespace XML_Editor_WuffPad
             }
         }
         #endregion
+        #region Script Window
+        private void OpenScriptWindow()
+        {
+            if (currentScriptWindow?.IsActive ?? false)
+            {
+                if (!currentScriptWindow.IsFocused) currentScriptWindow.Focus();
+                return;
+            }
+            currentScriptWindow = new ScriptWindow(this.Height, ref loadedFile);
+            currentScriptWindow.Show();
+        }
+        #endregion
         #endregion
 
         #region Status Updating
@@ -649,6 +663,7 @@ namespace XML_Editor_WuffPad
                 fileUploadMenuItem.IsEnabled = true;
                 editFindMenuItem.IsEnabled = true;
                 fileFindMenuItem.IsEnabled = true;
+                scriptMenuItem.IsEnabled = true;
             }
             else
             {
@@ -659,6 +674,7 @@ namespace XML_Editor_WuffPad
                 fileUploadMenuItem.IsEnabled = false;
                 editFindMenuItem.IsEnabled = false;
                 fileFindMenuItem.IsEnabled = false;
+                scriptMenuItem.IsEnabled = false;
             }
             if (itemIsOpen)
             {
@@ -968,6 +984,10 @@ namespace XML_Editor_WuffPad
             else if (e.Command == ApplicationCommands.Find)
             {
                 if (fileIsOpen) OpenFindDialog();
+            }
+            else if (e.Command == CustomCommands.Scripts)
+            {
+                if (fileIsOpen) OpenScriptWindow();
             }
             else
             {

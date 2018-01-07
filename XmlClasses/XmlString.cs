@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Xml.Serialization;
 
-namespace XML_Editor_WuffPad.XMLClasses
+namespace XMLClasses
 {
     public class XmlString
     {

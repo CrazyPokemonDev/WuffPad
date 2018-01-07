@@ -26,6 +26,8 @@
                         Executed="CommandBinding_Executed"/>
         <CommandBinding Command="ApplicationCommands.Find"
                         Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="comm:CustomCommands.Scripts"
+                        Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
     <Grid x:Name="mainGrid" MouseDown="NotList_MouseDown">
         <Grid.ColumnDefinitions>
@@ -51,6 +53,9 @@
             <MenuItem x:Name="editMenuItem" Header="Edit">
                 <MenuItem x:Name="editLanguageMenuItem" Header="Language properties" Command="comm:CustomCommands.LanguageProperties" HorizontalAlignment="Left" IsEnabled="False"/>
                 <MenuItem x:Name="editFindMenuItem" Header="Find" Command="ApplicationCommands.Find" HorizontalAlignment="Left" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem x:Name="extrasMenuItem" Header="Extras">
+                <MenuItem x:Name="scriptMenuItem" Header="Scripts (experimental)" Command="comm:CustomCommands.Scripts"/>
             </MenuItem>
             <MenuItem x:Name="infoMenuItem" Header="Info">
                 <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="ClosedlistItem_Click"/>
