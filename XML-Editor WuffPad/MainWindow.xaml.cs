@@ -45,7 +45,7 @@ namespace XML_Editor_WuffPad
                 return Path.GetDirectoryName(path);
             }
         }
-        private static readonly string serverBaseUrl = "http://www.meyer-alpers.de/florian/WuffPad/Resources/";
+        private static readonly string serverBaseUrl = "http://185.249.197.95/WuffPad/Resources/";
         private static readonly string fileScratchPath = Path.Combine(RootDirectory, "Resources\\language.xml");
         private static readonly string fileScratchPathOnline = serverBaseUrl + "language.xml";
         private static readonly string dictFilePath = Path.Combine(RootDirectory, "Resources\\descriptions.dict");
@@ -64,10 +64,10 @@ namespace XML_Editor_WuffPad
             {"standardKeys.db", new string[] { defaultKeysFilePathOnline, defaultKeysFilePath } },
             {"emojis.txt", new string[] { emojisFilePathOnline, emojisFilePath } }
         };
-        private const string closedlistPath = "http://88.198.66.60/getClosedlist.php";
-        private const string underdevPath = "http://88.198.66.60/getUnderdev.php";
+        private const string closedlistPath = "http://185.249.197.95/getClosedlist.php";
+        private const string underdevPath = "http://185.249.197.95/getUnderdev.php";
         private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
-        private const string uploadPath = "http://88.198.66.60/uploadWuffLangfile.php";
+        private const string uploadPath = "http://185.249.197.95/uploadWuffLangfile.php";
         #endregion
         #region Variables
         private bool fileIsOpen = false;
