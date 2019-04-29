@@ -24,6 +24,7 @@ using System.Windows.Data;
 using File = System.IO.File;
 using XML_Editor_WuffPad.Dialogs;
 using XMLClasses;
+using System.Collections.Specialized;
 
 namespace XML_Editor_WuffPad
 {
@@ -64,10 +65,12 @@ namespace XML_Editor_WuffPad
             {"standardKeys.db", new string[] { defaultKeysFilePathOnline, defaultKeysFilePath } },
             {"emojis.txt", new string[] { emojisFilePathOnline, emojisFilePath } }
         };
+        private static readonly string authTokenPath = Path.Combine(RootDirectory, "tokens.txt");
         private const string closedlistPath = "http://185.249.197.95/getClosedlist.php";
         private const string underdevPath = "http://185.249.197.95/getUnderdev.php";
         private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
         private const string uploadPath = "http://185.249.197.95/uploadWuffLangfile.php";
+        private const string authenticationUrl = "http://185.249.197.95/WuffPadAuth.html?token=";
         #endregion
         #region Variables
         private bool fileIsOpen = false;
@@ -622,7 +625,14 @@ namespace XML_Editor_WuffPad
                 if (CheckForSaved())
                 {
                     WebClient wc = new WebClient();
-                    wc.UploadFile(uploadPath, saveDirectory);
+                    var parameters = new NameValueCollection();
+                    if (File.Exists(authTokenPath)) parameters.Add("token", File.ReadAllText(authTokenPath));
+                    wc.QueryString = parameters;
+                    var responseBytes = wc.UploadFile(uploadPath, saveDirectory);
+                    string response = Encoding.ASCII.GetString(responseBytes);
+#if DEBUG
+                    //MessageBox.Show(response);
+#endif
                     MessageBox.Show("File was sent to translation group. It will be uploaded as soon as an admin"
                         + " comes across it.");
                 }
@@ -647,6 +657,16 @@ namespace XML_Editor_WuffPad
             }
             currentScriptWindow = new ScriptWindow(this.Height, ref loadedFile);
             currentScriptWindow.Show();
+        }
+        #endregion
+        #region Login
+        private void Login()
+        {
+            Guid myToken = Guid.NewGuid();
+            Directory.CreateDirectory(Path.GetDirectoryName(authTokenPath));
+            File.WriteAllText(authTokenPath, myToken.ToString());
+            MessageBox.Show("If you were logged in before, you are now logged out.");
+            Process.Start(authenticationUrl + myToken.ToString());
         }
         #endregion
         #endregion
@@ -989,6 +1009,10 @@ namespace XML_Editor_WuffPad
             {
                 if (fileIsOpen) OpenScriptWindow();
             }
+            else if (e.Command == CustomCommands.Login)
+            {
+                Login();
+            }
             else
             {
                 throw new NotImplementedException(
@@ -1189,6 +1213,12 @@ namespace XML_Editor_WuffPad
         {
             FeedbackDialog fd = new FeedbackDialog();
             fd.ShowDialog();
+        }
+        #endregion
+        #region Login clicked
+        private void LoginMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Login();
         }
         #endregion
         #endregion

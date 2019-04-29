@@ -56,6 +56,7 @@
             </MenuItem>
             <MenuItem x:Name="extrasMenuItem" Header="Extras">
                 <MenuItem x:Name="scriptMenuItem" Header="Scripts (experimental)" Command="comm:CustomCommands.Scripts"/>
+                <MenuItem x:Name="loginMenuItem" Header="Login with another user" Click="LoginMenuItem_Click"/>
             </MenuItem>
             <MenuItem x:Name="infoMenuItem" Header="Info">
                 <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="ClosedlistItem_Click"/>
