@@ -46,7 +46,7 @@ namespace XML_Editor_WuffPad
                 return Path.GetDirectoryName(path);
             }
         }
-        private static readonly string serverBaseUrl = "http://185.249.197.95/WuffPad/Resources/";
+        private static readonly string serverBaseUrl = "http://crazypokemondev.de/WuffPad/Resources/";
         private static readonly string fileScratchPath = Path.Combine(RootDirectory, "Resources\\language.xml");
         private static readonly string fileScratchPathOnline = serverBaseUrl + "language.xml";
         private static readonly string dictFilePath = Path.Combine(RootDirectory, "Resources\\descriptions.dict");
