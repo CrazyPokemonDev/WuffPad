@@ -20,9 +20,25 @@ jobs:
         run: nuget restore "XML-Editor WuffPad.sln"
 
       - name: Build
-        run: msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release /p:Platform="Any CPU" /v:minimal /nologo
+        id: build
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $log = Join-Path $PWD 'build.log'
+          msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" /v:minimal /nologo 2>&1 |
+            Tee-Object -FilePath $log | Out-Null
+          $code = $LASTEXITCODE
+          $problems = @(Get-Content $log | Where-Object { $_ -match ':\s(error|warning)\s' })
+          $problems | Select-Object -First 40 | ForEach-Object { Write-Host "::error::$($_.Trim())" }
+          if ($code -ne 0 -and $problems.Count -eq 0) {
+            Write-Host "::error::MSBuild failed without diagnostics, tail:"
+            Get-Content $log | Select-Object -Last 25 | ForEach-Object { Write-Host "::error::$($_.Trim())" }
+          }
+          if ($code -ne 0) { exit 1 }
 
       - name: Verify the offline helper files are embedded
+        if: steps.build.outcome == 'success'
         shell: pwsh
         run: |
           $exe = "XML-Editor WuffPad/bin/Release/XML-Editor WuffPad.exe"
@@ -31,9 +47,13 @@ jobs:
           $expected = @("language.xml", "descriptions.dict", "standardKeys.db", "emojis.txt")
           foreach ($file in $expected) {
             $resource = "XML_Editor_WuffPad.Builtin.$file"
-            if ($names -notcontains $resource) { throw "Missing embedded resource: $resource" }
+            if ($names -notcontains $resource) { Write-Host "::error::Missing embedded resource: $resource"; exit 1 }
           }
-          Write-Host "Embedded resources:" $names
+          Write-Host "Embedded resources: $($names -join ', ')"
+
+      - name: Fail if the build failed
+        if: steps.build.outcome != 'success'
+        run: exit 1
 
       - name: Upload build
         uses: actions/upload-artifact@v4
