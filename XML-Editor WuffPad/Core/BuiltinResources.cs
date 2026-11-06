@@ -1,5 +1,6 @@
 using System.IO;
 using System.Reflection;
+using System.Text;
 
 namespace XML_Editor_WuffPad.Core
 {
@@ -112,6 +113,7 @@ namespace XML_Editor_WuffPad.Core
 }
 using System.IO;
 using System.Reflection;
+using System.Text;
 
 namespace XML_Editor_WuffPad.Core
 {
@@ -183,7 +185,7 @@ namespace XML_Editor_WuffPad.Core
                 {
                     return null;
                 }
-                using (StreamReader reader = new StreamReader(stream, System.Text.Encoding.UTF8, true))
+                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8, true))
                 {
                     return reader.ReadToEnd();
                 }
