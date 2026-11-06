@@ -32,6 +32,9 @@ jobs:
           New-Item -ItemType Directory -Force -Path $target | Out-Null
           Copy-Item -Path "$source/*" -Destination $target -Force
           Write-Host "Installed" (Get-ChildItem $target).Count "reference assemblies into $target"
+          Write-Host "::notice::Targeting pack contents: $((Get-ChildItem $target).Name -join ', ')"
+          Write-Host "::notice::TargetFrameworkRootPath=$env:TargetFrameworkRootPath"
+          Write-Host "::notice::msbuild=$(Get-Command msbuild).Source"
 
       - name: Build
         id: build
