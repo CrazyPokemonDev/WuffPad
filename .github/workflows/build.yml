@@ -58,8 +58,12 @@ jobs:
           # Simulate a fresh install: no Resources folder, no network.
           $fresh = Join-Path $env:RUNNER_TEMP 'fresh'
           New-Item -ItemType Directory -Force -Path $fresh | Out-Null
-          Copy-Item -Path 'XML-Editor WuffPad/bin/Release/*' -Destination $fresh -Recurse -Force
+          # Note: copy the children, not the folder contents with wildcard recursion,
+          # otherwise the directory layout ends up nested one level deep.
+          Get-ChildItem -Path 'XML-Editor WuffPad/bin/Release' -Force |
+            Copy-Item -Destination $fresh -Recurse -Force
           Remove-Item -Path (Join-Path $fresh 'Resources') -Recurse -Force -ErrorAction SilentlyContinue
+          if (Test-Path (Join-Path $fresh 'Resources')) { Write-Host "::error::Could not remove Resources" ; exit 1 }
           $exe = Join-Path $fresh 'XML-Editor WuffPad.exe'
           $report = Join-Path $env:RUNNER_TEMP 'selftest.txt'
           $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
