@@ -264,10 +264,38 @@ namespace XML_Editor_WuffPad.Core
 
         private static WebClient CreateClient()
         {
-            WebClient client = new WebClient();
+            TimeLimitedWebClient client = new TimeLimitedWebClient((int)Timeout.TotalMilliseconds);
             client.Headers[HttpRequestHeader.UserAgent] = "WuffPad/1.0";
-            client.Timeout = Timeout;
             return client;
+        }
+
+        /// <summary>
+        /// WebClient without a request timeout would keep a start-up refresh alive
+        /// for minutes on a bad connection.
+        /// </summary>
+        private sealed class TimeLimitedWebClient : WebClient
+        {
+            private readonly int timeoutMilliseconds;
+
+            public TimeLimitedWebClient(int timeoutMilliseconds)
+            {
+                this.timeoutMilliseconds = timeoutMilliseconds;
+            }
+
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                WebRequest request = base.GetWebRequest(address);
+                if (request != null)
+                {
+                    request.Timeout = timeoutMilliseconds;
+                    HttpWebRequest httpRequest = request as HttpWebRequest;
+                    if (httpRequest != null)
+                    {
+                        httpRequest.ReadWriteTimeout = timeoutMilliseconds;
+                    }
+                }
+                return request;
+            }
         }
     }
 }
