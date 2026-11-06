@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (.NET Framework 4.5, MSBuild)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore "XML-Editor WuffPad.sln"
+
+      - name: Build
+        run: msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release /p:Platform="Any CPU" /v:minimal /nologo
+
+      - name: Verify the offline helper files are embedded
+        shell: pwsh
+        run: |
+          $exe = "XML-Editor WuffPad/bin/Release/XML-Editor WuffPad.exe"
+          $asm = [Reflection.Assembly]::LoadFile((Resolve-Path $exe))
+          $names = $asm.GetManifestResourceNames()
+          $expected = @("language.xml", "descriptions.dict", "standardKeys.db", "emojis.txt")
+          foreach ($file in $expected) {
+            $resource = "XML_Editor_WuffPad.Builtin.$file"
+            if ($names -notcontains $resource) { throw "Missing embedded resource: $resource" }
+          }
+          Write-Host "Embedded resources:" $names
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: WuffPad-bin
+          path: XML-Editor WuffPad/bin/Release/
