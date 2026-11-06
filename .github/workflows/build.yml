@@ -51,6 +51,27 @@ jobs:
           }
           Write-Host "Embedded resources: $($names -join ', ')"
 
+      - name: Verify a clean copy runs without the update server
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          # Simulate a fresh install: no Resources folder, no network.
+          $fresh = Join-Path $env:RUNNER_TEMP 'fresh'
+          New-Item -ItemType Directory -Force -Path $fresh | Out-Null
+          Copy-Item -Path 'XML-Editor WuffPad/bin/Release/*' -Destination $fresh -Recurse -Force
+          Remove-Item -Path (Join-Path $fresh 'Resources') -Recurse -Force -ErrorAction SilentlyContinue
+          $exe = Join-Path $fresh 'XML-Editor WuffPad.exe'
+          $report = Join-Path $env:RUNNER_TEMP 'selftest.txt'
+          $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
+          Get-Content $report | ForEach-Object { Write-Host $_ }
+          Get-Content $report | Where-Object { $_ -match 'MISSING|FAILED|Result: FAIL' } |
+            ForEach-Object { Write-Host "::error::$_" }
+          if ($proc.ExitCode -ne 0) { Write-Host "::error::Self-test exit code $($proc.ExitCode)"; exit 1 }
+
+          # And once more from the same folder: the extracted files must be reused.
+          $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
+          if ($proc.ExitCode -ne 0) { Write-Host "::error::Second run of the self-test failed"; exit 1 }
+
       - name: Fail if the build failed
         if: steps.build.outcome != 'success'
         run: exit 1

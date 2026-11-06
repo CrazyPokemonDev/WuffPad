@@ -97,8 +97,8 @@ namespace XML_Editor_WuffPad
         #endregion
         #region Opening a file
         public MainWindow(string path)
+            : this()
         {
-            new MainWindow();
             LoadFileFromOutside(path);
         }
         #endregion

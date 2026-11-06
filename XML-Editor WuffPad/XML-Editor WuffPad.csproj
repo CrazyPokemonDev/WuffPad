@@ -122,6 +122,7 @@
     <Compile Include="Core\AppData.cs" />
     <Compile Include="Core\BuiltinResources.cs" />
     <Compile Include="Core\ResourceUpdater.cs" />
+    <Compile Include="Core\SelfTest.cs" />
     <Compile Include="Core\TelegramChannelFeed.cs" />
     <Compile Include="Dialogs\ScriptWindow.xaml.cs">
       <DependentUpon>ScriptWindow.xaml</DependentUpon>
