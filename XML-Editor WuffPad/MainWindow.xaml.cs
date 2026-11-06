@@ -295,10 +295,6 @@ namespace XML_Editor_WuffPad
             GetDictAndDefaultKeys();
             if (changed.Contains(BuiltinResources.EmojisFile))
             {
-                foreach (Button b in emojiButtonsList)
-                {
-                    emojiGrid.Children.Remove(b);
-                }
                 emojiButtonsList.Clear();
                 emojiGrid.Children.Clear();
                 emojiGrid.RowDefinitions.Clear();
@@ -341,27 +337,66 @@ namespace XML_Editor_WuffPad
             descriptionDic = new Dictionary<string, string>();
             defaultKeysList = new List<string>();
             emojisList = new List<string>();
-            if (File.Exists(dictFilePath))
+            try
             {
-                string input = System.IO.File.ReadAllText(dictFilePath);
-                descriptionDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(input);
-            }
-            if (File.Exists(defaultKeysFilePath))
-            {
-                string input = System.IO.File.ReadAllText(defaultKeysFilePath);
-                string[] inputs = input.Split('\n');
-                foreach (string s in inputs)
+                string input = ReadHelperFile(BuiltinResources.DescriptionsFile);
+                if (input != null)
                 {
-                    defaultKeysList.Add(s);
+                    descriptionDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(input)
+                        ?? new Dictionary<string, string>();
                 }
             }
-            if (File.Exists(emojisFilePath))
+            catch
             {
-                foreach (string s in System.IO.File.ReadAllLines(emojisFilePath, Encoding.UTF8))
+                // Broken descriptions only cost the tooltips, so carry on.
+                descriptionDic = new Dictionary<string, string>();
+            }
+            string keys = ReadHelperFile(BuiltinResources.DefaultKeysFile);
+            if (keys != null)
+            {
+                foreach (string s in keys.Split('\n'))
                 {
-                    emojisList.Add(s);
+                    // The trailing newline of the file must not become an empty key:
+                    // the "missing string" check would ask about it on every save.
+                    string key = s.TrimEnd('\r');
+                    if (key.Trim().Length > 0)
+                    {
+                        defaultKeysList.Add(key);
+                    }
                 }
             }
+            string emojis = ReadHelperFile(BuiltinResources.EmojisFile);
+            if (emojis != null)
+            {
+                foreach (string s in emojis.Split('\n'))
+                {
+                    string emoji = s.TrimEnd('\r');
+                    if (emoji.Trim().Length > 0)
+                    {
+                        emojisList.Add(emoji);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Reads a helper file from the data folder, falling back to the copy
+        /// embedded in the executable when the file is missing or unreadable.
+        /// </summary>
+        private static string ReadHelperFile(string fileName)
+        {
+            string path = AppData.PathFor(fileName);
+            try
+            {
+                if (File.Exists(path))
+                {
+                    return System.IO.File.ReadAllText(path);
+                }
+            }
+            catch
+            {
+                // Unreadable or locked: use the embedded copy instead.
+            }
+            return BuiltinResources.ReadAllText(fileName);
         }
         #endregion
         #region New file
