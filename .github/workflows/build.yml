@@ -72,6 +72,15 @@ jobs:
           $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
           if ($proc.ExitCode -ne 0) { Write-Host "::error::Second run of the self-test failed"; exit 1 }
 
+      - name: Publish the self-test report as a note
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          $report = Join-Path $env:RUNNER_TEMP 'selftest.txt'
+          if (Test-Path $report) {
+            Get-Content $report | ForEach-Object { Write-Host "::notice::$_" }
+          }
+
       - name: Fail if the build failed
         if: steps.build.outcome != 'success'
         run: exit 1
