@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build (.NET Framework 4.5, MSBuild)
+    name: Build (.NET Framework 4.8, MSBuild)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,20 +19,6 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore "XML-Editor WuffPad.sln"
 
-      # The runner does not ship the (long out of support) .NET Framework 4.5
-      # targeting pack, so bring it along from NuGet and drop it where MSBuild
-      # looks for targeting packs.
-      - name: Install .NET Framework 4.5 reference assemblies
-        shell: pwsh
-        run: |
-          nuget install Microsoft.NETFramework.ReferenceAssemblies.net45 -Version 1.0.3 -OutputDirectory refasm -ExcludeVersion
-          $source = "refasm/Microsoft.NETFramework.ReferenceAssemblies.net45/build/.NETFramework/v4.5"
-          Write-Host "Package contains:" (Get-ChildItem $source | ForEach-Object Name) -Separator ' '
-          $target = "C:/Program Files (x86)/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.5"
-          New-Item -ItemType Directory -Force -Path $target | Out-Null
-          Copy-Item -Path "$source/*" -Destination $target -Force
-          Write-Host "Installed" (Get-ChildItem $target).Count "reference assemblies into $target"
-
       - name: Build
         id: build
         shell: pwsh
@@ -40,8 +26,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Continue'
           $log = Join-Path $PWD 'build.log'
-          $frameworkRoot = "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework"
-          msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" "/p:TargetFrameworkRootPath=$frameworkRoot" /v:minimal /nologo 2>&1 |
+          msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" /v:minimal /nologo 2>&1 |
             Tee-Object -FilePath $log | Out-Null
           $code = $LASTEXITCODE
           $problems = @(Get-Content $log | Where-Object { $_ -match ':\s(error|warning)\s' })
