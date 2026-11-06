@@ -32,9 +32,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path $target | Out-Null
           Copy-Item -Path "$source/*" -Destination $target -Force
           Write-Host "Installed" (Get-ChildItem $target).Count "reference assemblies into $target"
-          Write-Host "::notice::Targeting pack contents: $((Get-ChildItem $target).Name -join ', ')"
-          Write-Host "::notice::TargetFrameworkRootPath=$env:TargetFrameworkRootPath"
-          Write-Host "::notice::msbuild=$(Get-Command msbuild).Source"
 
       - name: Build
         id: build
@@ -43,7 +40,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Continue'
           $log = Join-Path $PWD 'build.log'
-          msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" /v:minimal /nologo 2>&1 |
+          $frameworkRoot = "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework"
+          msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" "/p:TargetFrameworkRootPath=$frameworkRoot" /v:minimal /nologo 2>&1 |
             Tee-Object -FilePath $log | Out-Null
           $code = $LASTEXITCODE
           $problems = @(Get-Content $log | Where-Object { $_ -match ':\s(error|warning)\s' })
