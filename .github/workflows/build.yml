@@ -1,0 +1,96 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (.NET Framework 4.8, MSBuild)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore "XML-Editor WuffPad.sln"
+
+      - name: Build
+        id: build
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $log = Join-Path $PWD 'build.log'
+          msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" /v:minimal /nologo 2>&1 |
+            Tee-Object -FilePath $log | Out-Null
+          $code = $LASTEXITCODE
+          $problems = @(Get-Content $log | Where-Object { $_ -match ':\s(error|warning)\s' })
+          $problems | Select-Object -First 40 | ForEach-Object { Write-Host "::error::$($_.Trim())" }
+          if ($code -ne 0 -and $problems.Count -eq 0) {
+            Write-Host "::error::MSBuild failed without diagnostics, tail:"
+            Get-Content $log | Select-Object -Last 25 | ForEach-Object { Write-Host "::error::$($_.Trim())" }
+          }
+          if ($code -ne 0) { exit 1 }
+
+      - name: Verify the offline helper files are embedded
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          $exe = "XML-Editor WuffPad/bin/Release/XML-Editor WuffPad.exe"
+          $asm = [Reflection.Assembly]::LoadFile((Resolve-Path $exe))
+          $names = $asm.GetManifestResourceNames()
+          $expected = @("language.xml", "descriptions.dict", "standardKeys.db", "emojis.txt")
+          foreach ($file in $expected) {
+            $resource = "XML_Editor_WuffPad.Builtin.$file"
+            if ($names -notcontains $resource) { Write-Host "::error::Missing embedded resource: $resource"; exit 1 }
+          }
+          Write-Host "Embedded resources: $($names -join ', ')"
+
+      - name: Verify a clean copy runs without the update server
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          # Simulate a fresh install: no Resources folder, no network.
+          $fresh = Join-Path $env:RUNNER_TEMP 'fresh'
+          New-Item -ItemType Directory -Force -Path $fresh | Out-Null
+          # Note: copy the children, not the folder contents with wildcard recursion,
+          # otherwise the directory layout ends up nested one level deep.
+          Get-ChildItem -Path 'XML-Editor WuffPad/bin/Release' -Force |
+            Copy-Item -Destination $fresh -Recurse -Force
+          Remove-Item -Path (Join-Path $fresh 'Resources') -Recurse -Force -ErrorAction SilentlyContinue
+          if (Test-Path (Join-Path $fresh 'Resources')) { Write-Host "::error::Could not remove Resources" ; exit 1 }
+          $exe = Join-Path $fresh 'XML-Editor WuffPad.exe'
+          $report = Join-Path $env:RUNNER_TEMP 'selftest.txt'
+          $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
+          Get-Content $report | ForEach-Object { Write-Host $_ }
+          Get-Content $report | Where-Object { $_ -match 'MISSING|FAILED|Result: FAIL' } |
+            ForEach-Object { Write-Host "::error::$_" }
+          if ($proc.ExitCode -ne 0) { Write-Host "::error::Self-test exit code $($proc.ExitCode)"; exit 1 }
+
+          # And once more from the same folder: the extracted files must be reused.
+          $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
+          if ($proc.ExitCode -ne 0) { Write-Host "::error::Second run of the self-test failed"; exit 1 }
+
+      - name: Publish the self-test report as a note
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          $report = Join-Path $env:RUNNER_TEMP 'selftest.txt'
+          if (Test-Path $report) {
+            Get-Content $report | ForEach-Object { Write-Host "::notice::$_" }
+          }
+
+      - name: Fail if the build failed
+        if: steps.build.outcome != 'success'
+        run: exit 1
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: WuffPad-bin
+          path: XML-Editor WuffPad/bin/Release/
