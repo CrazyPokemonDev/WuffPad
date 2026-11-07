@@ -40,7 +40,21 @@ jobs:
             Copy-Item -Destination $stage -Force
           Remove-Item -Path (Join-Path $stage 'XmlClasses.pdb') -ErrorAction SilentlyContinue
           Compress-Archive -Path (Join-Path $stage '*') -DestinationPath 'WuffPad.zip' -Force
-          Get-ChildItem $stage | ForEach-Object { Write-Host $_.Name }
+          Get-ChildItem $stage | ForEach-Object { Write-Host "::notice::package file: $($_.Name) $($_.Length) bytes" }
+          Write-Host "::notice::package size: $((Get-Item 'WuffPad.zip').Length) bytes"
+
+          # The zip must not contain a Resources folder: that one is rebuilt from
+          # the embedded copies on first start.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path 'WuffPad.zip'))
+          try {
+            $zip.Entries | ForEach-Object { Write-Host "::notice::zip entry: $($_.FullName)" }
+            if ($zip.Entries | Where-Object { $_.FullName -like 'Resources/*' }) {
+              Write-Host "::error::WuffPad.zip contains a Resources folder"
+              exit 1
+            }
+          }
+          finally { $zip.Dispose() }
 
       - name: Attach the build to a release
         uses: softprops/action-gh-release@v3
