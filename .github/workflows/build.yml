@@ -89,6 +89,31 @@ jobs:
             Get-Content $report | ForEach-Object { Write-Host "::notice::$_" }
           }
 
+      - name: Open the editor once
+        if: steps.build.outcome == 'success'
+        shell: pwsh
+        run: |
+          # XAML errors and constructor crashes only show up when the window is
+          # actually created, so start it, look at the process and close it again.
+          $fresh = Join-Path $env:RUNNER_TEMP 'fresh'
+          $exe = Join-Path $fresh 'XML-Editor WuffPad.exe'
+          $proc = Start-Process -FilePath $exe -PassThru
+          $window = $null
+          for ($i = 0; $i -lt 30 -and -not $window; $i++) {
+            Start-Sleep -Milliseconds 500
+            $proc.Refresh()
+            if ($proc.HasExited) { break }
+            $window = $proc.MainWindowTitle
+          }
+          if ($proc.HasExited) {
+            Write-Host "::error::WuffPad exited on start-up with code $($proc.ExitCode)"
+            exit 1
+          }
+          Write-Host "Window title: '$window'"
+          Write-Host "Data folder: " (Get-ChildItem (Join-Path $fresh 'Resources') -ErrorAction SilentlyContinue | ForEach-Object Name)
+          Stop-Process -Id $proc.Id -Force
+          if (-not $window) { Write-Host "::warning::No window title was reported" }
+
       - name: Fail if the build failed
         if: steps.build.outcome != 'success'
         run: exit 1

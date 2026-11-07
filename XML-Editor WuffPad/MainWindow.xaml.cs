@@ -32,7 +32,6 @@ namespace XML_Editor_WuffPad
     {
         #region Variables and constants
         #region Constants
-        private const long UploadChatId = -1001074012132;
         /// <summary>Folder holding the helper files; see <see cref="AppData"/>.</summary>
         internal static string RootDirectory
         {
@@ -40,7 +39,7 @@ namespace XML_Editor_WuffPad
         }
         private static string fileScratchPath { get { return AppData.PathFor(BuiltinResources.LanguageFile); } }
         private static string authTokenPath { get { return Path.Combine(RootDirectory, "tokens.txt"); } }
-        private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
+        private const string wikiPageUrl = "https://github.com/CrazyPokemonDev/WuffPad/wiki";
         // The WuffPad web server is gone. Uploads are kept for compatibility, but
         // they will only work again if someone points uploadPath at a live endpoint.
         private const string uploadPath = "http://185.249.197.95/uploadWuffLangfile.php";
