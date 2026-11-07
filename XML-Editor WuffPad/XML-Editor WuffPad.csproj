@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XML_Editor_WuffPad</RootNamespace>
     <AssemblyName>XML-Editor WuffPad</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -78,6 +78,7 @@
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
@@ -89,9 +90,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
-    <Reference Include="Telegram.Bot, Version=14.11.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Telegram.Bot.14.11.0\lib\net45\Telegram.Bot.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -121,6 +119,12 @@
       <DependentUpon>LanguagePropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\CustomCommands.cs" />
+    <Compile Include="Core\AppData.cs" />
+    <Compile Include="Core\BuiltinResources.cs" />
+    <Compile Include="Core\ResourceUpdater.cs" />
+    <Compile Include="Core\SelfTest.cs" />
+    <Compile Include="Core\TimeLimitedWebClient.cs" />
+    <Compile Include="Core\TelegramChannelFeed.cs" />
     <Compile Include="Dialogs\ScriptWindow.xaml.cs">
       <DependentUpon>ScriptWindow.xaml</DependentUpon>
     </Compile>
@@ -194,11 +198,46 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <!-- Helper files WuffPad used to download from crazypokemondev.de. They are
+       embedded so the editor works without a server; see Core/BuiltinResources.cs.
+       Rebuild them with tools/make-builtin-resources.py. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\descriptions.dict">
+      <LogicalName>XML_Editor_WuffPad.Builtin.descriptions.dict</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\emojis.txt">
+      <LogicalName>XML_Editor_WuffPad.Builtin.emojis.txt</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\language.xml">
+      <LogicalName>XML_Editor_WuffPad.Builtin.language.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\standardKeys.db">
+      <LogicalName>XML_Editor_WuffPad.Builtin.standardKeys.db</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\descriptions.dict">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Resources\descriptions.dict</Link>
+    </Content>
+    <Content Include="Resources\emojis.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Resources\emojis.txt</Link>
+    </Content>
+    <Content Include="Resources\language.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Resources\language.xml</Link>
+    </Content>
+    <Content Include="Resources\standardKeys.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Resources\standardKeys.db</Link>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Android_wuff.ico" />
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.6">
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.6 %28x86 und x64%29</ProductName>
       <Install>true</Install>

@@ -5,16 +5,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Net.Http;
 using System.Xml.Serialization;
 using XML_Editor_WuffPad.Commands;
-using Telegram.Bot;
-using Telegram.Bot.Types;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using XML_Editor_WuffPad.Properties;
@@ -24,6 +20,7 @@ using System.Windows.Data;
 using File = System.IO.File;
 using XML_Editor_WuffPad.Dialogs;
 using XMLClasses;
+using XML_Editor_WuffPad.Core;
 using System.Collections.Specialized;
 
 namespace XML_Editor_WuffPad
@@ -35,42 +32,17 @@ namespace XML_Editor_WuffPad
     {
         #region Variables and constants
         #region Constants
-        private const long UploadChatId = -1001074012132;
+        /// <summary>Folder holding the helper files; see <see cref="AppData"/>.</summary>
         internal static string RootDirectory
         {
-            get
-            {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
+            get { return AppData.Directory; }
         }
-        private static readonly string serverBaseUrl = "http://crazypokemondev.de/WuffPad/Resources/";
-        private static readonly string fileScratchPath = Path.Combine(RootDirectory, "Resources\\language.xml");
-        private static readonly string fileScratchPathOnline = serverBaseUrl + "language.xml";
-        private static readonly string dictFilePath = Path.Combine(RootDirectory, "Resources\\descriptions.dict");
-        private static readonly string dictFilePathOnline = serverBaseUrl + "descriptions.dict";
-        private static readonly string defaultKeysFilePath = Path.Combine(RootDirectory, "Resources\\standardKeys.db");
-        private static readonly string defaultKeysFilePathOnline = serverBaseUrl + "standardKeys.db";
-        private static readonly string versionFilePath = Path.Combine(RootDirectory, "Resources\\versions.txt");
-        private static readonly string versionFilePathOnline = serverBaseUrl + "versions.txt";
-        private static readonly string emojisFilePath = Path.Combine(RootDirectory, "Resources\\emojis.txt");
-        private static readonly string emojisFilePathOnline = serverBaseUrl + "emojis.txt";
-        private static readonly string[] filesNames = { "language.xml", "descriptions.dict", "standardKeys.db", "emojis.txt" };
-        private static readonly Dictionary<string, string[]> namesPathsDict = new Dictionary<string, string[]>()
-        {
-            {"language.xml", new string[] { fileScratchPathOnline, fileScratchPath } },
-            {"descriptions.dict", new string[] { dictFilePathOnline, dictFilePath } },
-            {"standardKeys.db", new string[] { defaultKeysFilePathOnline, defaultKeysFilePath } },
-            {"emojis.txt", new string[] { emojisFilePathOnline, emojisFilePath } }
-        };
-        private static readonly string authTokenPath = Path.Combine(RootDirectory, "tokens.txt");
-        private const string closedlistPath = "http://185.249.197.95/getClosedlist.php";
-        private const string underdevPath = "http://185.249.197.95/getUnderdev.php";
-        private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
+        private static string fileScratchPath { get { return AppData.PathFor(BuiltinResources.LanguageFile); } }
+        private static string authTokenPath { get { return Path.Combine(RootDirectory, "tokens.txt"); } }
+        private const string wikiPageUrl = "https://github.com/CrazyPokemonDev/WuffPad/wiki";
+        // The WuffPad web server is gone. Uploads are kept for compatibility, but
+        // they will only work again if someone points uploadPath at a live endpoint.
         private const string uploadPath = "http://185.249.197.95/uploadWuffLangfile.php";
-        private const string authenticationUrl = "http://185.249.197.95/WuffPadAuth.html?token=";
         #endregion
         #region Variables
         private bool fileIsOpen = false;
@@ -107,9 +79,12 @@ namespace XML_Editor_WuffPad
         public MainWindow()
         {
             InitializeComponent();
-            try { FetchNewestFiles(); }
-            catch /*(Exception e)*/ { /*MessageBox.Show(e.ToString() +e.Message + e.StackTrace);*/ }
+            // The helper files used to be downloaded here. The server is gone, so
+            // this now writes the copies embedded in the executable and only then
+            // tries the (optional) update location in the background.
+            BuiltinResources.EnsureExtracted();
             GetDictAndDefaultKeys();
+            StartBackgroundUpdate();
             listItemsView.ItemsSource = currentStringsList;
             listValuesView.ItemsSource = currentValuesList;
             InitializeEmojiKeyboard();
@@ -118,8 +93,8 @@ namespace XML_Editor_WuffPad
         #endregion
         #region Opening a file
         public MainWindow(string path)
+            : this()
         {
-            new MainWindow();
             LoadFileFromOutside(path);
         }
         #endregion
@@ -288,78 +263,44 @@ namespace XML_Editor_WuffPad
             return doSave;
         }
         #endregion
-        #region Download file by name
-        private void DownloadFileByName(string name)
+        #region Background update of the helper files
+        /// <summary>
+        /// Asks <see cref="ResourceUpdater"/> for newer helper files, if an update
+        /// location is configured. Never blocks and never fails the start-up.
+        /// </summary>
+        private void StartBackgroundUpdate()
         {
-            DownloadFile(namesPathsDict[name][0], namesPathsDict[name][1]);
+            ResourceUpdater.TryStartBackgroundUpdate(files =>
+            {
+                try
+                {
+                    Dispatcher.BeginInvoke(new Action(() => ReloadHelperFiles(files)));
+                }
+                catch
+                {
+                    // Window already gone, nothing to refresh.
+                }
+            });
         }
-        #endregion
-        #region Fetch Newest Files
-        private void FetchNewestFiles()
+        /// <summary>
+        /// Re-reads descriptions, default keys and emojis after an update and
+        /// re-applies the descriptions to the open file.
+        /// </summary>
+        private void ReloadHelperFiles(IList<string> changed)
         {
-            bool versionFileExists = System.IO.File.Exists(versionFilePath);
-            List<string[]> version_old = new List<string[]>();
-            Dictionary<string, int> version_oldDict = new Dictionary<string, int>();
-            if (versionFileExists)
+            GetDictAndDefaultKeys();
+            if (changed.Contains(BuiltinResources.EmojisFile))
             {
-                foreach (string s in System.IO.File.ReadAllLines(versionFilePath))
+                InitializeEmojiKeyboard();
+            }
+            if (fileIsOpen)
+            {
+                foreach (XmlString s in loadedFile.Strings)
                 {
-                    string[] strs = s.Split(':');
-                    version_old.Add(strs);
-                }
-                foreach (string[] s in version_old)
-                {
-                    version_oldDict.Add(s[0], Convert.ToInt16(s[1]));
+                    s.Description = GetDescription(s.Key);
                 }
             }
-            WebClient wc = new WebClient();
-            wc.DownloadFile(versionFilePathOnline, "version.txt");
-            string versionFilePathRaw = versionFilePath.Remove(versionFilePath.LastIndexOf('\\') + 1);
-            if (!Directory.Exists(versionFilePathRaw))
-            {
-                Directory.CreateDirectory(versionFilePathRaw);
-            }
-            if (System.IO.File.Exists(versionFilePath)) System.IO.File.Delete(versionFilePath);
-            System.IO.File.Move("version.txt", versionFilePath);
-            List<string[]> version = new List<string[]>();
-            foreach (string s in System.IO.File.ReadAllLines(versionFilePath))
-            {
-                string[] strs = s.Split(':');
-                version.Add(strs);
-            }
-            Dictionary<string, int> versionDict = new Dictionary<string, int>();
-            foreach (string[] s in version)
-            {
-                versionDict.Add(s[0], Convert.ToInt16(s[1]));
-            }
-            foreach (string s in filesNames)
-            {
-                if (version_oldDict.ContainsKey(s))
-                {
-                    if (version_oldDict[s] < versionDict[s] || s == "token.cod")
-                    {
-                        DownloadFileByName(s);
-                    }
-                }
-                else
-                {
-                    DownloadFileByName(s);
-                }
-            }
-        }
-        #endregion
-        #region Download a file
-        private void DownloadFile(string url, string pathTo)
-        {
-            WebClient wc = new WebClient();
-            wc.DownloadFile(url, "temp");
-            string pathToRaw = pathTo.Remove(pathTo.LastIndexOf('\\') + 1);
-            if (!Directory.Exists(pathToRaw))
-            {
-                Directory.CreateDirectory(pathToRaw);
-            }
-            if (System.IO.File.Exists(pathTo)) System.IO.File.Delete(pathTo);
-            System.IO.File.Move("temp", pathTo);
+            UpdateStatus();
         }
         #endregion
         #region Get a missing default key
@@ -383,27 +324,71 @@ namespace XML_Editor_WuffPad
         #region Extract Dictionary, default keys, emojis and token
         private void GetDictAndDefaultKeys()
         {
-            if (File.Exists(dictFilePath))
+            // Called again after a background update, so start from scratch instead
+            // of appending to what was read before.
+            descriptionDic = new Dictionary<string, string>();
+            defaultKeysList = new List<string>();
+            emojisList = new List<string>();
+            try
             {
-                string input = System.IO.File.ReadAllText(dictFilePath);
-                descriptionDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(input);
-            }
-            if (File.Exists(defaultKeysFilePath))
-            {
-                string input = System.IO.File.ReadAllText(defaultKeysFilePath);
-                string[] inputs = input.Split('\n');
-                foreach (string s in inputs)
+                string input = ReadHelperFile(BuiltinResources.DescriptionsFile);
+                if (input != null)
                 {
-                    defaultKeysList.Add(s);
+                    descriptionDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(input)
+                        ?? new Dictionary<string, string>();
                 }
             }
-            if (File.Exists(emojisFilePath))
+            catch
             {
-                foreach (string s in System.IO.File.ReadAllLines(emojisFilePath, Encoding.UTF8))
+                // Broken descriptions only cost the tooltips, so carry on.
+                descriptionDic = new Dictionary<string, string>();
+            }
+            string keys = ReadHelperFile(BuiltinResources.DefaultKeysFile);
+            if (keys != null)
+            {
+                foreach (string s in keys.Split('\n'))
                 {
-                    emojisList.Add(s);
+                    // The trailing newline of the file must not become an empty key:
+                    // the "missing string" check would ask about it on every save.
+                    string key = s.TrimEnd('\r');
+                    if (key.Trim().Length > 0)
+                    {
+                        defaultKeysList.Add(key);
+                    }
                 }
             }
+            string emojis = ReadHelperFile(BuiltinResources.EmojisFile);
+            if (emojis != null)
+            {
+                foreach (string s in emojis.Split('\n'))
+                {
+                    string emoji = s.TrimEnd('\r');
+                    if (emoji.Trim().Length > 0)
+                    {
+                        emojisList.Add(emoji);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Reads a helper file from the data folder, falling back to the copy
+        /// embedded in the executable when the file is missing or unreadable.
+        /// </summary>
+        private static string ReadHelperFile(string fileName)
+        {
+            string path = AppData.PathFor(fileName);
+            try
+            {
+                if (File.Exists(path))
+                {
+                    return System.IO.File.ReadAllText(path);
+                }
+            }
+            catch
+            {
+                // Unreadable or locked: use the embedded copy instead.
+            }
+            return BuiltinResources.ReadAllText(fileName);
         }
         #endregion
         #region New file
@@ -418,9 +403,10 @@ namespace XML_Editor_WuffPad
                 {
                     GetFileFromScratch();
                 }
-                catch
+                catch (Exception e)
                 {
-                    MessageBox.Show("Failed to load blueprint, connect to the internet and restart.");
+                    MessageBox.Show("Failed to load the English blueprint for a new file.\n"
+                        + e.Message);
                 }
                 currentStringsList.Clear();
                 foreach (XmlString s in loadedFile.Strings)
@@ -557,14 +543,12 @@ namespace XML_Editor_WuffPad
         #region Initialize emoji keyboard
         private void InitializeEmojiKeyboard()
         {
-            for (int i = 0; i < 6; i++)
-            {
-                ColumnDefinition cd = new ColumnDefinition()
-                {
-                    Width = new GridLength(1, GridUnitType.Star)
-                };
-                emojiGrid.ColumnDefinitions.Add(cd);
-            }
+            // Rebuilt whenever the emoji list changes, so start from an empty grid.
+            emojiButtonsList.Clear();
+            emojiGrid.Children.Clear();
+            emojiGrid.RowDefinitions.Clear();
+            emojiGrid.ColumnDefinitions.Clear();
+            AddEmojiGridColumns();
             int column = -1;
             int row = 0;
             RowDefinition rdBase = new RowDefinition()
@@ -601,8 +585,20 @@ namespace XML_Editor_WuffPad
                     textBox.Focus();
                     textBox.SelectionStart = selStart + 1;
                 };
-                b.IsEnabled = false;
+                b.IsEnabled = valueIsOpen;
                 emojiButtonsList.Add(b);
+            }
+        }
+
+        private void AddEmojiGridColumns()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                ColumnDefinition cd = new ColumnDefinition()
+                {
+                    Width = new GridLength(1, GridUnitType.Star)
+                };
+                emojiGrid.ColumnDefinitions.Add(cd);
             }
         }
         #endregion
@@ -639,11 +635,8 @@ namespace XML_Editor_WuffPad
             }
             catch
             {
-#if DEBUG
-                throw;
-#else
-                MessageBox.Show("An error occurred.");
-#endif
+                MessageBox.Show("The upload server is no longer available: WuffPad was shut down in 2025.\n"
+                    + "Send the file to the translation group yourself instead.");
             }
         }
         #endregion
@@ -662,11 +655,8 @@ namespace XML_Editor_WuffPad
         #region Login
         private void Login()
         {
-            Guid myToken = Guid.NewGuid();
-            Directory.CreateDirectory(Path.GetDirectoryName(authTokenPath));
-            File.WriteAllText(authTokenPath, myToken.ToString());
-            MessageBox.Show("If you were logged in before, you are now logged out.");
-            Process.Start(authenticationUrl + myToken.ToString());
+            MessageBox.Show("Logging in is no longer possible: the WuffPad server was shut down in 2025.\n"
+                + "Uploading is disabled for everyone; see the Wiki for the current translation work flow.");
         }
         #endregion
         #endregion
@@ -907,8 +897,13 @@ namespace XML_Editor_WuffPad
         #region Get file from scratch
         private void GetFileFromScratch()
         {
+            if (!System.IO.File.Exists(fileScratchPath)
+                || new FileInfo(fileScratchPath).Length == 0)
+            {
+                BuiltinResources.Extract(BuiltinResources.LanguageFile, fileScratchPath);
+            }
             if (System.IO.File.Exists(fileScratchPath)) loadedFile = ReadXmlString(System.IO.File.ReadAllText(fileScratchPath));
-            else throw new Exception("Failed to load file");
+            else throw new Exception("The English blueprint is missing from this build.");
         }
         #endregion
         #endregion
@@ -1159,47 +1154,34 @@ namespace XML_Editor_WuffPad
         #region #closedlist
         private void ClosedlistItem_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(closedlistPath);
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                Stream resStream = response.GetResponseStream();
-                string closedlist;
-                using (StreamReader sr = new StreamReader(resStream))
-                {
-                    closedlist = sr.ReadToEnd();
-                }
-                ClosedlistWindow cw = new ClosedlistWindow("CURRENT CLOSEDLIST",
-                    closedlist.Replace(":", ": "));
-                cw.ShowDialog();
-            }
-            catch
-            {
-                MessageBox.Show("Failed to fetch #closedlist.");
-            }
+            ShowTelegramList("CURRENT CLOSEDLIST", "closedlist");
         }
         #endregion
         #region #underdev
         private void UnderdevItem_Click(object sender, RoutedEventArgs e)
         {
-            try
+            ShowTelegramList("LANGFILES UNDER DEVELOPMENT", "underdev");
+        }
+        #endregion
+        #region Telegram list helper
+        /// <summary>
+        /// Shows the content of a public Telegram channel the way it was shown
+        /// before. The WuffPad server that used to proxy these lists is gone, so the
+        /// public preview page of the channel is read directly instead.
+        /// </summary>
+        private void ShowTelegramList(string header, string channel)
+        {
+            string content = TelegramChannelFeed.GetMessages(
+                TelegramChannelFeed.DownloadChannel(channel));
+            if (string.IsNullOrEmpty(content))
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(underdevPath);
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                Stream resStream = response.GetResponseStream();
-                string underdev;
-                using (StreamReader sr = new StreamReader(resStream))
-                {
-                    underdev = sr.ReadToEnd();
-                }
-                ClosedlistWindow cw = new ClosedlistWindow("LANGFILES UNDER DEVELOPMENT",
-                    underdev.Replace(":", ": "));
-                cw.ShowDialog();
+                MessageBox.Show("Failed to fetch #" + channel + ".\n"
+                    + "The WuffPad server is gone and t.me/" + channel
+                    + " could not be reached. Check your internet connection.");
+                return;
             }
-            catch
-            {
-                MessageBox.Show("Failed to fetch #underdev.");
-            }
+            ClosedlistWindow cw = new ClosedlistWindow(header, content);
+            cw.ShowDialog();
         }
         #endregion
         #region Wiki

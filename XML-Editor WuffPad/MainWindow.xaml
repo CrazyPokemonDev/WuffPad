@@ -59,8 +59,8 @@
                 <MenuItem x:Name="loginMenuItem" Header="Login with another user" Click="LoginMenuItem_Click"/>
             </MenuItem>
             <MenuItem x:Name="infoMenuItem" Header="Info">
-                <MenuItem x:Name="closedlistItem" Header="#closedlist" Click="ClosedlistItem_Click"/>
-                <MenuItem x:Name="underdevItem" Header="#underdev" Click="UnderdevItem_Click"/>
+                <MenuItem x:Name="closedlistItem" Header="#closedlist (t.me)" Click="ClosedlistItem_Click"/>
+                <MenuItem x:Name="underdevItem" Header="#underdev (t.me)" Click="UnderdevItem_Click"/>
                 <MenuItem x:Name="wikiItem" Header="Wiki" Click="WikiItem_Click"/>
                 <MenuItem x:Name="feedbackItem" Header="Bug Report and Feedback" Click="FeedbackItem_Click"/>
             </MenuItem>
