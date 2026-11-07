@@ -70,6 +70,7 @@ jobs:
           Get-Content $report | ForEach-Object { Write-Host $_ }
           Get-Content $report | Where-Object { $_ -match 'MISSING|FAILED|Result: FAIL' } |
             ForEach-Object { Write-Host "::error::$_" }
+          Write-Host "::notice::$(Get-Content $report -TotalCount 1)"
           if ($proc.ExitCode -ne 0) { Write-Host "::error::Self-test exit code $($proc.ExitCode)"; exit 1 }
 
           # And once more from the same folder: the extracted files must be reused.

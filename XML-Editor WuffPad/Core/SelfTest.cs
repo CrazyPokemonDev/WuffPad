@@ -77,6 +77,16 @@ namespace XML_Editor_WuffPad.Core
             report.AppendLine();
             report.AppendLine(passed ? "Result: PASS" : "Result: FAIL");
 
+            // Put the verdict first: build logs and annotations clip long output.
+            string[] lines = report.ToString().Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            StringBuilder ordered = new StringBuilder();
+            ordered.AppendLine(lines[lines.Length - 2]);
+            foreach (string line in lines)
+            {
+                ordered.AppendLine(line);
+            }
+            report = ordered;
+
             string reportPath = FindReportPath(args);
             try
             {
