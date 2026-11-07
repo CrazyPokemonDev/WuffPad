@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package WuffPad
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Restore NuGet packages
+        run: nuget restore "XML-Editor WuffPad.sln"
+
+      - name: Build
+        run: msbuild "XML-Editor WuffPad.sln" /p:Configuration=Release "/p:Platform=Any CPU" /v:minimal /nologo
+
+      - name: Check that a clean copy works without the (dead) update server
+        shell: pwsh
+        run: ./tools/smoke-test.ps1
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $out = "XML-Editor WuffPad/bin/Release"
+          $stage = Join-Path $env:RUNNER_TEMP 'stage'
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          # Code only: the data folder is (re)created on first start from the
+          # copies embedded in the executable.
+          Get-ChildItem $out -File | Where-Object { $_.Extension -in '.exe', '.dll', '.config' } |
+            Copy-Item -Destination $stage -Force
+          Remove-Item -Path (Join-Path $stage 'XmlClasses.pdb') -ErrorAction SilentlyContinue
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath 'WuffPad.zip' -Force
+          Get-ChildItem $stage | ForEach-Object { Write-Host "::notice::package file: $($_.Name) $($_.Length) bytes" }
+          Write-Host "::notice::package size: $((Get-Item 'WuffPad.zip').Length) bytes"
+
+          # The zip must not contain a Resources folder: that one is rebuilt from
+          # the embedded copies on first start.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path 'WuffPad.zip'))
+          try {
+            $zip.Entries | ForEach-Object { Write-Host "::notice::zip entry: $($_.FullName)" }
+            if ($zip.Entries | Where-Object { $_.FullName -like 'Resources/*' }) {
+              Write-Host "::error::WuffPad.zip contains a Resources folder"
+              exit 1
+            }
+          }
+          finally { $zip.Dispose() }
+
+      - name: Attach the build to a release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: WuffPad.zip
+          name: WuffPad ${{ github.ref_name }}
+          body: |
+            WuffPad builds and starting without the original WuffPad server.
+
+            Unpack `WuffPad.zip` anywhere and run `XML-Editor WuffPad.exe`.
+            No installation, no .NET Framework 4.5, no internet connection needed
+            on first start: the English blueprint, the descriptions, the key list
+            and the emoji keyboard ship inside the executable.
+
+            Requires .NET Framework 4.8 (preinstalled on Windows 10 1903+ and Windows 11).
+
+            `XML-Editor WuffPad.exe --selftest` writes a report to
+            `%TEMP%\wuffpad-selftest.txt` and exits with 0 when everything is in order.
