@@ -58,12 +58,14 @@ jobs:
           # Simulate a fresh install: no Resources folder, no network.
           $fresh = Join-Path $env:RUNNER_TEMP 'fresh'
           New-Item -ItemType Directory -Force -Path $fresh | Out-Null
-          # Note: copy the children, not the folder contents with wildcard recursion,
-          # otherwise the directory layout ends up nested one level deep.
-          Get-ChildItem -Path 'XML-Editor WuffPad/bin/Release' -Force |
+          # Copy the binaries without the Resources folder that the build output
+          # contains, so the run really has to unpack the embedded files.
+          $bin = 'XML-Editor WuffPad/bin/Release'
+          Get-ChildItem -Path $bin -File | Copy-Item -Destination $fresh -Force
+          Get-ChildItem -Path $bin -Directory |
+            Where-Object { $_.Name -ne 'Resources' } |
             Copy-Item -Destination $fresh -Recurse -Force
-          Remove-Item -Path (Join-Path $fresh 'Resources') -Recurse -Force -ErrorAction SilentlyContinue
-          if (Test-Path (Join-Path $fresh 'Resources')) { Write-Host "::error::Could not remove Resources" ; exit 1 }
+          if (Test-Path (Join-Path $fresh 'Resources')) { Write-Host "::error::Fresh folder contains Resources"; exit 1 }
           $exe = Join-Path $fresh 'XML-Editor WuffPad.exe'
           $report = Join-Path $env:RUNNER_TEMP 'selftest.txt'
           $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
@@ -75,6 +77,7 @@ jobs:
 
           # And once more from the same folder: the extracted files must be reused.
           $proc = Start-Process -FilePath $exe -ArgumentList '--selftest', $report -Wait -PassThru
+          Get-Content $report | Where-Object { $_ -match 'Result:' } | ForEach-Object { Write-Host "::notice::second run: $_" }
           if ($proc.ExitCode -ne 0) { Write-Host "::error::Second run of the self-test failed"; exit 1 }
 
       - name: Publish the self-test report as a note

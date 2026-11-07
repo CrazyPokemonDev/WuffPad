@@ -39,9 +39,6 @@ namespace XML_Editor_WuffPad
             get { return AppData.Directory; }
         }
         private static string fileScratchPath { get { return AppData.PathFor(BuiltinResources.LanguageFile); } }
-        private static string dictFilePath { get { return AppData.PathFor(BuiltinResources.DescriptionsFile); } }
-        private static string defaultKeysFilePath { get { return AppData.PathFor(BuiltinResources.DefaultKeysFile); } }
-        private static string emojisFilePath { get { return AppData.PathFor(BuiltinResources.EmojisFile); } }
         private static string authTokenPath { get { return Path.Combine(RootDirectory, "tokens.txt"); } }
         private const string wikiPageUrl = "https://github.com/Olfi01/WuffPad/wiki";
         // The WuffPad web server is gone. Uploads are kept for compatibility, but

@@ -30,10 +30,8 @@ namespace XML_Editor_WuffPad.Core
         {
             try
             {
-                using (System.Net.WebClient client = new System.Net.WebClient())
+                using (TimeLimitedWebClient client = TimeLimitedWebClient.Create())
                 {
-                    client.Headers[System.Net.HttpRequestHeader.UserAgent] = "WuffPad/1.0";
-                    client.Encoding = Encoding.UTF8;
                     return client.DownloadString(PreviewUrl(channel));
                 }
             }

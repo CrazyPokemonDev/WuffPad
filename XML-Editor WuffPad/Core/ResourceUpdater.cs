@@ -17,10 +17,9 @@ namespace XML_Editor_WuffPad.Core
     /// updating is strictly best effort: run in the background, never block the UI,
     /// never overwrite a local file unless the server really answered.
     ///
-    /// Point <c>updateUrl</c> (App.config key <c>UpdateUrl</c> or the
-    /// <c>WUFFPAD_UPDATE_URL</c> environment variable) at a folder that contains
-    /// versions.txt plus the data files to receive the same files the old server
-    /// provided.
+    /// Point <c>UpdateUrl</c> (App.config) or the <c>WUFFPAD_UPDATE_URL</c>
+    /// environment variable at a folder that contains versions.txt plus the data
+    /// files to keep receiving the files the old server used to provide.
     /// </remarks>
     public static class ResourceUpdater
     {
@@ -31,7 +30,6 @@ namespace XML_Editor_WuffPad.Core
         public const string UpdateUrlVariable = "WUFFPAD_UPDATE_URL";
 
         private const string VersionFileName = "versions.txt";
-        private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
         private static int running;
 
         /// <summary>
@@ -214,7 +212,7 @@ namespace XML_Editor_WuffPad.Core
         {
             try
             {
-                using (WebClient client = CreateClient())
+                using (TimeLimitedWebClient client = TimeLimitedWebClient.Create())
                 {
                     return client.DownloadString(url);
                 }
@@ -230,7 +228,7 @@ namespace XML_Editor_WuffPad.Core
             string temporary = pathTo + ".download";
             try
             {
-                using (WebClient client = CreateClient())
+                using (TimeLimitedWebClient client = TimeLimitedWebClient.Create())
                 {
                     client.DownloadFile(url, temporary);
                 }
@@ -259,42 +257,6 @@ namespace XML_Editor_WuffPad.Core
                     // Nothing left to clean up.
                 }
                 return false;
-            }
-        }
-
-        private static WebClient CreateClient()
-        {
-            TimeLimitedWebClient client = new TimeLimitedWebClient((int)Timeout.TotalMilliseconds);
-            client.Headers[HttpRequestHeader.UserAgent] = "WuffPad/1.0";
-            return client;
-        }
-
-        /// <summary>
-        /// WebClient without a request timeout would keep a start-up refresh alive
-        /// for minutes on a bad connection.
-        /// </summary>
-        private sealed class TimeLimitedWebClient : WebClient
-        {
-            private readonly int timeoutMilliseconds;
-
-            public TimeLimitedWebClient(int timeoutMilliseconds)
-            {
-                this.timeoutMilliseconds = timeoutMilliseconds;
-            }
-
-            protected override WebRequest GetWebRequest(Uri address)
-            {
-                WebRequest request = base.GetWebRequest(address);
-                if (request != null)
-                {
-                    request.Timeout = timeoutMilliseconds;
-                    HttpWebRequest httpRequest = request as HttpWebRequest;
-                    if (httpRequest != null)
-                    {
-                        httpRequest.ReadWriteTimeout = timeoutMilliseconds;
-                    }
-                }
-                return request;
             }
         }
     }
