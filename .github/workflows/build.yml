@@ -11,10 +11,10 @@ jobs:
     name: Build (.NET Framework 4.8, MSBuild)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: Restore NuGet packages
         run: nuget restore "XML-Editor WuffPad.sln"
@@ -109,8 +109,8 @@ jobs:
             Write-Host "::error::WuffPad exited on start-up with code $($proc.ExitCode)"
             exit 1
           }
-          Write-Host "Window title: '$window'"
-          Write-Host "Data folder: " (Get-ChildItem (Join-Path $fresh 'Resources') -ErrorAction SilentlyContinue | ForEach-Object Name)
+          Write-Host "::notice::WuffPad opened its window: '$window'"
+          Write-Host "::notice::Data folder after start-up: $((Get-ChildItem (Join-Path $fresh 'Resources') -ErrorAction SilentlyContinue | ForEach-Object Name) -join ', ')"
           Stop-Process -Id $proc.Id -Force
           if (-not $window) { Write-Host "::warning::No window title was reported" }
 
@@ -119,7 +119,7 @@ jobs:
         run: exit 1
 
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: WuffPad-bin
           path: XML-Editor WuffPad/bin/Release/

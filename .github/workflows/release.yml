@@ -13,10 +13,10 @@ jobs:
     name: Package WuffPad
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: Restore NuGet packages
         run: nuget restore "XML-Editor WuffPad.sln"
@@ -43,7 +43,7 @@ jobs:
           Get-ChildItem $stage | ForEach-Object { Write-Host $_.Name }
 
       - name: Attach the build to a release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: WuffPad.zip
           name: WuffPad ${{ github.ref_name }}
